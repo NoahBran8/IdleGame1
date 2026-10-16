@@ -10,3 +10,9 @@
 - Stand sells one item per tick, in plant-config order. Helper harvests every 5 seconds and never replants.
 - Upgrade purchases preserve a 5-coin seed reserve if no growing plants or inventory remain, preventing an empty-garden dead end.
 - Domain/services use explicit dependency injection rather than global autoloads. One programmatic garden UI replaces separate panel scenes for the initial slice; module boundaries remain independent of rendering.
+- M3 save schema v3 migrates v1/v2; permanent quest rewards and tutorial step persist. Future-version saves are preserved and writes paused.
+- Journal combines collection and five non-expiring quests. MVP collection records discovery of the standard variety; breeding and variants are deferred as in the spec.
+- Audio consists of original synthesized 150ms tones. Sound, reduced motion, large text, high contrast and local telemetry settings persist.
+- Event adapter writes a bounded local JSONL journal (256 KiB rotation), no persistent install identifier, no external endpoint. Event/parameter allowlists reject unknown fields. Local logs can be disabled.
+- Developer coin button exists only in debug builds with explicit --debug-garden user argument. Release builds cannot enable it.
+- Initial network failure was sandbox socket access. Supported additional network permission allows proxy access; git ls-remote now confirms origin has no refs.

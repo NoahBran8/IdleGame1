@@ -19,6 +19,10 @@ func load_into(model: GardenModel) -> bool:
 		var parser := JSON.new()
 		if parser.parse(FileAccess.get_file_as_string(file)) != OK:
 			continue
+		if parser.data is Dictionary and (parser.data.get("version", 0) is float or parser.data.get("version", 0) is int) and parser.data.get("version", 0) > 3:
+			message = "This save needs a newer Garden Empire version. Original files preserved; saving paused."
+			blocked = true
+			return false
 		var candidate: Variant = model.migrate(parser.data)
 		if model.validate(candidate):
 			model.state = candidate
@@ -26,7 +30,10 @@ func load_into(model: GardenModel) -> bool:
 				message = "Recovered your garden from its backup."
 				# Quarantine the damaged primary before subsequent writes.
 				if FileAccess.file_exists(path):
-					DirAccess.rename_absolute(path, path + ".damaged-" + str(Time.get_unix_time_from_system()))
+					if DirAccess.rename_absolute(path, path + ".damaged-" + str(Time.get_unix_time_from_system())) != OK:
+						message = "Backup found, but damaged primary could not be preserved. Saving paused."
+						blocked = true
+						return false
 			return true
 	message = "Save could not be read. Original files preserved; saving paused. Restore a valid backup before continuing."
 	blocked = true

@@ -20,10 +20,10 @@ func fresh() -> Dictionary:
 	var upgrades: Dictionary = {}
 	for id: String in config.upgrades:
 		upgrades[id] = 0
-	return {"version": 2, "upgrades": upgrades, "last_update": 0, "stand_at": 0, "helper_at": 0, "coins": int(config.economy.get("starting_coins", 20)),
+	return {"version": 3, "claimed_quests": [], "onboarding": 0, "upgrades": upgrades, "last_update": 0, "stand_at": 0, "helper_at": 0, "coins": int(config.economy.get("starting_coins", 20)),
 		"xp": 0, "plots_unlocked": 4, "plots": plots, "inventory": inventory,
 		"discovered": [], "harvests": 0, "sales": 0, "saved_at": 0,
-		"settings": {"reduced_motion": false, "high_contrast": false, "large_text": false}}
+		"settings": {"reduced_motion": false, "high_contrast": false, "large_text": false, "sound": true, "local_telemetry": true}}
 
 func level() -> int:
 	return 1 + int(state.xp) / int(config.economy.xp_per_level)
@@ -43,6 +43,7 @@ func plant(index: int, species: String, now: int) -> bool:
 	var row: Dictionary = config.plants[species]
 	if not state.plots[index].is_empty() or level() < int(row.level_required) or int(state.coins) < int(row.seed_cost):
 		return false
+	state.onboarding = maxi(1, int(state.onboarding))
 	state.coins = int(state.coins) - int(row.seed_cost)
 	state.plots[index] = {"species_id": species, "plot_id": index,
 		"planted_at_utc": now, "maturity_at_utc": now + growth_seconds(species)}
@@ -52,6 +53,7 @@ func harvest(index: int, now: int) -> bool:
 	if phase(index, now) != 3:
 		return false
 	var species: String = state.plots[index].species_id
+	state.onboarding = maxi(2, int(state.onboarding))
 	state.inventory[species] = int(state.inventory[species]) + 1
 	state.xp = mini(MAX_COINS, int(state.xp) + harvest_xp(species))
 	state.harvests = mini(MAX_COINS, int(state.harvests) + 1)
@@ -69,6 +71,7 @@ func sell(species: String, quantity: int) -> int:
 	var count: int = mini(quantity, affordable)
 	if count <= 0:
 		return 0
+	state.onboarding = maxi(3, int(state.onboarding))
 	var income: int = count * value
 	state.inventory[species] = int(state.inventory[species]) - count
 	state.coins = int(state.coins) + income
@@ -82,7 +85,7 @@ func sell_all() -> int:
 	return income
 
 func validate(candidate: Variant) -> bool:
-	if not candidate is Dictionary or candidate.get("version") != 2:
+	if not candidate is Dictionary or candidate.get("version") != 3:
 		return false
 	for field: String in ["coins", "xp", "harvests", "sales", "saved_at", "last_update", "stand_at", "helper_at"]:
 		if not Config.integer(candidate.get(field), 0, MAX_COINS):
@@ -117,9 +120,16 @@ func validate(candidate: Variant) -> bool:
 			return false
 	if not candidate.get("settings") is Dictionary:
 		return false
-	for key: String in ["reduced_motion", "high_contrast", "large_text"]:
+	for key: String in ["reduced_motion", "high_contrast", "large_text", "sound", "local_telemetry"]:
 		if not candidate.settings.get(key) is bool:
 			return false
+	if not Config.integer(candidate.get("onboarding"), 0, 4) or not candidate.get("claimed_quests") is Array:
+		return false
+	var seen: Array = []
+	for quest: Variant in candidate.claimed_quests:
+		if not quest is String or not config.quests.has(quest) or quest in seen:
+			return false
+		seen.append(quest)
 	if not candidate.get("upgrades") is Dictionary:
 		return false
 	for id: String in config.upgrades:
@@ -170,6 +180,7 @@ func keeps_seed_path(price: int) -> bool:
 func buy_upgrade(id: String, now: int) -> bool:
 	if not can_upgrade(id):
 		return false
+	state.onboarding = maxi(4, int(state.onboarding))
 	state.coins = int(state.coins) - upgrade_price(id)
 	state.upgrades[id] = int(state.upgrades[id]) + 1
 	if id == "plots":
@@ -243,7 +254,35 @@ func migrate(candidate: Variant) -> Variant:
 		candidate.last_update = candidate.get("saved_at", 0)
 		candidate.stand_at = candidate.last_update
 		candidate.helper_at = candidate.last_update
+	if candidate.get("version") == 2:
+		candidate = candidate.duplicate(true)
+		candidate.version = 3
+		candidate.claimed_quests = []
+		candidate.onboarding = 0
+		if candidate.get("settings") is Dictionary:
+			candidate.settings.sound = true
+			candidate.settings.local_telemetry = true
 	return candidate
+
+func quest_progress(id: String) -> int:
+	if not config.quests.has(id):
+		return 0
+	var metric: String = config.quests[id].metric
+	if metric == "discovered":
+		return state.discovered.size()
+	if metric == "stand":
+		return int(state.upgrades.stand)
+	return int(state[metric])
+
+func claim_quest(id: String) -> bool:
+	if not config.quests.has(id) or id in state.claimed_quests:
+		return false
+	var row: Dictionary = config.quests[id]
+	if quest_progress(id) < int(row.target) or int(state.coins) > MAX_COINS - int(row.reward):
+		return false
+	state.coins = int(state.coins) + int(row.reward)
+	state.claimed_quests.append(id)
+	return true
 
 static func compact(value: int) -> String:
 	if value < 1000:

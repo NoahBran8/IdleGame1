@@ -52,5 +52,10 @@ func _draw() -> void:
 			var angle: float = TAU * petal / 5.0
 			draw_circle(tip + Vector2(cos(angle), sin(angle)) * 7, 6 if stage == 3 else 4, color)
 		draw_circle(tip, 4, Color("#6b492e"))
+	draw_string(ThemeDB.fallback_font, center + Vector2(-15, 23), "Ready" if stage == 3 else "%d/3" % (stage + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("#f4e5ba"))
 	if stage == 3:
 		draw_circle(center + Vector2(28, -10), 4, Color("#f4d48b"))
+
+func _has_point(point: Vector2) -> bool:
+	var normalized: Vector2 = (point - size * 0.5) / (size * Vector2(0.5, 0.48))
+	return absf(normalized.x) + absf(normalized.y) <= 1.05

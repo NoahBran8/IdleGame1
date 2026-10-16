@@ -1,0 +1,42 @@
+[
+  {
+    "id": "first_harvest",
+    "name": "A first harvest",
+    "description": "Harvest one plant.",
+    "metric": "harvests",
+    "target": 1,
+    "reward": 10
+  },
+  {
+    "id": "first_sale",
+    "name": "Open for business",
+    "description": "Sell one harvested plant.",
+    "metric": "sales",
+    "target": 1,
+    "reward": 15
+  },
+  {
+    "id": "expansion",
+    "name": "Room to grow",
+    "description": "Unlock a fifth plot.",
+    "metric": "plots_unlocked",
+    "target": 5,
+    "reward": 20
+  },
+  {
+    "id": "discovery",
+    "name": "Botanical beginnings",
+    "description": "Discover three plant species.",
+    "metric": "discovered",
+    "target": 3,
+    "reward": 50
+  },
+  {
+    "id": "stand",
+    "name": "A little flower stand",
+    "description": "Build the flower stand.",
+    "metric": "stand",
+    "target": 1,
+    "reward": 75
+  }
+]

@@ -2,6 +2,8 @@ extends Control
 
 const Model = preload("res://scripts/domain/game_model.gd")
 const Save = preload("res://scripts/services/save_service.gd")
+const Analytics = preload("res://scripts/services/analytics_service.gd")
+const Audio = preload("res://scripts/services/audio_service.gd")
 const Board = preload("res://scripts/ui/garden_board.gd")
 var model: GardenModel
 var saves: GardenSave
@@ -17,6 +19,9 @@ var active_tab: String = "Seeds"
 var ui_root: VBoxContainer
 var last_second: int = -1
 var tab_buttons: Dictionary = {}
+var analytics: GardenAnalytics
+var audio: AudioStreamPlayer
+var last_tutorial: int = 0
 
 func _ready() -> void:
 	model = Model.new()
@@ -27,6 +32,11 @@ func _ready() -> void:
 		return
 	saves = Save.new()
 	saves.load_into(model)
+	analytics = Analytics.new()
+	analytics.enabled = model.state.settings.local_telemetry
+	last_tutorial = int(model.state.onboarding)
+	audio = AudioStreamPlayer.new()
+	add_child(audio)
 	clock_origin = maxi(int(model.state.last_update), int(Time.get_unix_time_from_system()))
 	tick_origin = Time.get_ticks_msec()
 	get_tree().auto_accept_quit = false
@@ -40,6 +50,10 @@ func _ready() -> void:
 		if not saves.message.is_empty():
 			notice.text += "\n" + saves.message
 	_refresh()
+	_refresh_panel()
+	if int(model.state.saved_at) == 0:
+		_event("install_first_open")
+	_event("session_start")
 	_save()
 
 func now() -> int:
@@ -60,6 +74,7 @@ func _notification(what: int) -> void:
 	if model == null or saves == null or hud == null:
 		return
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_event("session_end")
 		_save()
 		get_tree().quit()
 	elif what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -68,6 +83,7 @@ func _notification(what: int) -> void:
 		clock_origin = maxi(now(), int(Time.get_unix_time_from_system()))
 		tick_origin = Time.get_ticks_msec()
 		var offline: Dictionary = model.advance_to(now())
+		_event("game_resumed", {"elapsed": int(offline.elapsed)})
 		if int(offline.elapsed) >= 60:
 			notice.text = "Garden resumed · %d coins sold · %d harvested%s" % [int(offline.income), int(offline.harvests), " · 8h cap applied" if offline.capped else ""]
 		_refresh_panel()
@@ -79,6 +95,7 @@ func _save() -> void:
 	model.state.saved_at = now()
 	if not saves.store(model) and notice != null:
 		notice.text = saves.message
+		_event("save_error", {"reason": "local_write_failed"})
 
 func _style(color: Color, border: Color = Color.TRANSPARENT) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -126,21 +143,25 @@ func _build() -> void:
 	ui_root.add_child(title)
 	_label(title, "THE HOME GARDEN", 14, Color("#bac99d"))
 	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spacer.custom_minimum_size.x = 8
 	title.add_child(spacer)
-	_label(title, "01 / THE BEGINNING", 11, Color("#8fa68e"))
+	var subtitle := _label(title, "01 / THE BEGINNING", 11, Color("#8fa68e"))
+	subtitle.size_flags_horizontal = Control.SIZE_SHRINK_END
+	subtitle.custom_minimum_size.x = 115
 	board = Board.new()
 	board.plot_pressed.connect(_on_plot)
 	ui_root.add_child(board)
 	hint = _label(ui_root, "", 16, Color("#d2d9b9"))
 	notice = _label(ui_root, "", 15, Color("#f0cf98"))
-	var tabs := HFlowContainer.new()
+	var tabs := GridContainer.new()
+	tabs.columns = 3
 	ui_root.add_child(tabs)
-	for tab: String in ["Seeds", "Inventory", "Shop", "Settings"]:
+	for tab: String in ["Seeds", "Inventory", "Shop", "Journal", "Settings"]:
 		var button := _button(tabs, tab, func() -> void:
 			active_tab = tab
 			_refresh_panel()
 		)
+		button.add_theme_font_size_override("font_size", 14)
 		tab_buttons[tab] = button
 	panel = VBoxContainer.new()
 	panel.add_theme_constant_override("separation", 9)
@@ -161,6 +182,7 @@ func _label(parent: Node, text: String, font_size: int = 17, color: Color = Colo
 func _button(parent: Node, text: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.custom_minimum_size.y = 48
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(action)
@@ -180,8 +202,15 @@ func _refresh() -> void:
 		elif model.phase(i, now()) >= 0:
 			growing += 1
 	hint.text = "%d ready to harvest · %d growing · %d open plots" % [ready_count, growing, int(model.state.plots_unlocked) - ready_count - growing]
-	if int(model.state.harvests) == 0:
-		hint.text += "\nTap a + plot to plant. Carrots grow in 8 seconds."
+	match int(model.state.onboarding):
+		0:
+			hint.text += "\nChoose Carrot below, then tap a + plot."
+		1:
+			hint.text += "\nTap a mature plant to harvest. Carrots take 8s."
+		2:
+			hint.text += "\nOpen Inventory to sell your first harvest."
+		3:
+			hint.text += "\nExplore the Shop. Every upgrade shows its benefit."
 
 func _on_plot(index: int) -> void:
 	model.advance_to(now())
@@ -193,9 +222,13 @@ func _on_plot(index: int) -> void:
 		var species: String = model.state.plots[index].species_id
 		if model.harvest(index, now()):
 			notice.text = model.config.plants[species].name + " harvested. Sell it from Inventory."
+			_event("plant_harvested", {"species": species, "quantity": 1})
+			_feedback(880.0, index)
 	elif phase == -1:
 		if model.plant(index, selected, now()):
 			notice.text = "%s planted · ready in %ds" % [model.config.plants[selected].name, model.growth_seconds(selected)]
+			_event("seed_planted", {"species": selected})
+			_feedback(440.0, index)
 		else:
 			notice.text = "Not enough coins or this species needs a higher level."
 	else:
@@ -236,13 +269,21 @@ func _refresh_panel() -> void:
 				var button := _button(panel, "%s ×%d   ·   Sell one for %d" % [model.config.plants[id].name, amount, model.sell_value(id)], func() -> void:
 					var earned: int = model.sell(id, 1)
 					notice.text = "Sold for %d coins." % earned
+					if earned > 0:
+						_event("item_sold", {"species": id, "quantity": 1, "coins": earned})
+						_feedback(1100.0)
 					_save()
 					_refresh()
 					_refresh_panel()
 				)
 				button.disabled = amount <= 0
 			_button(panel, "Sell all harvested plants", func() -> void:
-				notice.text = "Harvest sold for %d coins." % model.sell_all()
+				var count_before: int = int(model.state.sales)
+				var earned: int = model.sell_all()
+				notice.text = "Harvest sold for %d coins." % earned
+				if earned > 0:
+					_event("item_sold", {"quantity": int(model.state.sales) - count_before, "coins": earned})
+					_feedback(1100.0)
 				_save()
 				_refresh()
 				_refresh_panel()
@@ -259,9 +300,30 @@ func _refresh_panel() -> void:
 				button.disabled = not model.can_upgrade(id)
 				_label(panel, upgrade.description + " [Level %d]" % int(upgrade.level_required), 13, Color("#b8c7a5"))
 			_label(panel, "If your garden and inventory are empty, keep 5 coins for a seed.", 13)
+		"Journal":
+			_label(panel, "THE COLLECTION BOOK", 13, Color("#bac99d"))
+			for id: String in model.config.plants:
+				var discovered: bool = id in model.state.discovered
+				_label(panel, "%s · %s" % [model.config.plants[id].name, "Discovered · standard variety" if discovered else "Not harvested yet · level %d" % int(model.config.plants[id].level_required)], 16)
+			_label(panel, "GARDEN GOALS · NO EXPIRY", 13, Color("#bac99d"))
+			for id: String in model.config.quests:
+				var quest: Dictionary = model.config.quests[id]
+				var progress: int = mini(int(quest.target), model.quest_progress(id))
+				_label(panel, "%s · %d/%d\n%s" % [quest.name, progress, int(quest.target), quest.description], 15)
+				var claimed: bool = id in model.state.claimed_quests
+				var button := _button(panel, "Completed" if claimed else "Claim %d coins" % int(quest.reward), func() -> void:
+					if model.claim_quest(id):
+						notice.text = quest.name + " completed."
+						_event("progression_milestone", {"milestone": id, "coins": int(quest.reward)})
+						_feedback(990.0)
+						_save()
+						_refresh()
+						_refresh_panel()
+				)
+				button.disabled = claimed or progress < int(quest.target)
 		"Settings":
 			_label(panel, "MAKE YOURSELF AT HOME", 13, Color("#bac99d"))
-			for setting: String in ["large_text", "high_contrast", "reduced_motion"]:
+			for setting: String in ["large_text", "high_contrast", "reduced_motion", "sound", "local_telemetry"]:
 				var toggle := CheckButton.new()
 				toggle.text = setting.replace("_", " ").capitalize()
 				toggle.button_pressed = model.state.settings[setting]
@@ -269,13 +331,25 @@ func _refresh_panel() -> void:
 				panel.add_child(toggle)
 				toggle.toggled.connect(func(enabled: bool) -> void:
 					model.state.settings[setting] = enabled
+					analytics.enabled = model.state.settings.local_telemetry
+					_event("settings_changed", {"setting": setting, "enabled": enabled})
 					apply_settings()
 					_save()
 				)
-			_label(panel, "Offline · No account · No ads or purchases\nSave location: " + ProjectSettings.globalize_path(saves.path), 13)
+			_label(panel, "Local telemetry stays on this device (rotates at 256 KiB). No persistent player ID or network transmission. Toggle it off above.\nOffline · No account · No ads or purchases\nSave location: " + ProjectSettings.globalize_path(saves.path), 13)
+
+			if OS.is_debug_build() and "--debug-garden" in OS.get_cmdline_user_args():
+				_label(panel, "DEVELOPER TOOLS", 13)
+				_button(panel, "Add 100 test coins", func() -> void:
+					model.state.coins = mini(Model.MAX_COINS, int(model.state.coins) + 100)
+					_save()
+					_refresh()
+				)
+	apply_settings()
 
 func apply_settings() -> void:
 	theme.default_font_size = 20 if model.state.settings.large_text else 17
+	_scale_text(self, 1.2 if model.state.settings.large_text else 1.0)
 	RenderingServer.set_default_clear_color(Color("#061009") if model.state.settings.high_contrast else Color("#0c1713"))
 	_refresh()
 
@@ -300,8 +374,40 @@ func _purchase(id: String) -> void:
 	model.advance_to(now())
 	if model.buy_upgrade(id, now()):
 		notice.text = model.config.upgrades[id].name + " purchased."
+		_event("upgrade_purchased", {"upgrade": id})
+		if id == "stand":
+			_event("stand_unlocked")
+		_feedback(660.0)
 	else:
 		notice.text = "Purchase unavailable. Check your coins, level, and seed reserve."
 	_save()
 	_refresh()
 	_refresh_panel()
+
+func _scale_text(node: Node, scale_factor: float) -> void:
+	if node is Control and node.has_theme_font_size_override("font_size"):
+		if not node.has_meta("base_font_size"):
+			node.set_meta("base_font_size", node.get_theme_font_size("font_size"))
+		node.add_theme_font_size_override("font_size", int(float(node.get_meta("base_font_size")) * scale_factor))
+	for child: Node in node.get_children():
+		_scale_text(child, scale_factor)
+
+func _feedback(frequency: float, index: int = -1) -> void:
+	if model.state.settings.sound:
+		audio.stream = Audio.tone(frequency)
+		audio.play()
+	if not model.state.settings.reduced_motion:
+		if index >= 0:
+			var tile: Control = board.plots[index]
+			tile.modulate = Color("#ffdd94")
+			create_tween().tween_property(tile, "modulate", Color.WHITE, 0.3)
+		if OS.has_feature("android") or OS.has_feature("ios"):
+			Input.vibrate_handheld(25)
+
+func _event(name: String, params: Dictionary = {}) -> void:
+	if analytics == null:
+		return
+	analytics.record(name, params)
+	if int(model.state.onboarding) > last_tutorial:
+		last_tutorial = int(model.state.onboarding)
+		analytics.record("tutorial_step_completed", {"step": last_tutorial})

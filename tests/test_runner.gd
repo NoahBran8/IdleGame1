@@ -2,6 +2,8 @@ extends SceneTree
 
 const Model = preload("res://scripts/domain/game_model.gd")
 const Config = preload("res://scripts/domain/config.gd")
+const Analytics = preload("res://scripts/services/analytics_service.gd")
+const Audio = preload("res://scripts/services/audio_service.gd")
 const Save = preload("res://scripts/services/save_service.gd")
 var checks: int = 0
 var failures: int = 0
@@ -13,6 +15,7 @@ func check(condition: bool, description: String) -> void:
 		push_error("FAIL: " + description)
 
 func _initialize() -> void:
+	create_timer(15).timeout.connect(func() -> void: quit(2))
 	call_deferred("_run")
 
 func _run() -> void:
@@ -136,6 +139,55 @@ func _run() -> void:
 	check(persisted.store(capped), "offline result saved")
 	var reloaded := Model.new()
 	check(persisted.load_into(reloaded) and reloaded.advance_to(87400).income == 0, "restart cannot recredit offline income")
+	var goals := Model.new()
+	check(not goals.claim_quest("first_harvest"), "incomplete quest rejected")
+	goals.plant(0, "carrot", 1000)
+	goals.harvest(0, 1008)
+	check(goals.claim_quest("first_harvest") and goals.state.coins == 25, "quest exact reward")
+	check(not goals.claim_quest("first_harvest"), "quest reward cannot repeat")
+	check(goals.state.discovered == ["carrot"], "collection discovery recorded")
+	goals.sell_all()
+	check(goals.state.onboarding == 3, "onboarding advances through sale")
+	check(goals.claim_quest("first_sale") and goals.state.coins == 49, "sales quest eligible")
+	var v2: Dictionary = goals.state.duplicate(true)
+	v2.version = 2
+	v2.erase("claimed_quests")
+	v2.erase("onboarding")
+	v2.settings.erase("sound")
+	v2.settings.erase("local_telemetry")
+	check(goals.validate(goals.migrate(v2)), "version-two migration adds quest and settings defaults")
+	var duplicated: Dictionary = goals.state.duplicate(true)
+	duplicated.claimed_quests.append("first_harvest")
+	check(not goals.validate(duplicated), "duplicate claimed quest invalid")
+	var log := Analytics.new("user://test-events.jsonl")
+	check(log.record("seed_planted", {"species": "carrot"}), "local event record")
+	check(not log.record("unknown_event"), "unknown event rejected")
+	check(not log.record("seed_planted", {"email": "test@example.com"}), "PII parameter rejected")
+	log.enabled = false
+	check(not log.record("session_start"), "telemetry disabled")
+	log.enabled = true
+	for index: int in range(105):
+		log.record("session_start")
+	check(log.events.size() == 100, "event memory bounded")
+	check(not log.events[0].has("install_id"), "no persistent install identifier")
+	var tone: AudioStreamWAV = Audio.tone()
+	check(tone.data.size() == 6614 and tone.mix_rate == 22050, "original procedural sound generated")
+	var future := Save.new("user://future-test.json")
+	var future_state: Dictionary = goals.state.duplicate(true)
+	future_state.version = 99
+	var f := FileAccess.open(future.path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(future_state))
+	f.close()
+	check(not future.load_into(goals) and future.blocked, "future save preserved rather than rolled back")
+	DirAccess.make_dir_recursive_absolute("user://bad-config")
+	for name: String in ["plants", "economy", "upgrades", "quests"]:
+		DirAccess.copy_absolute("res://data/" + name + ".json", "user://bad-config/" + name + ".json")
+	var config_path: String = "user://bad-config/plants.json"
+	var malformed := FileAccess.open(config_path, FileAccess.WRITE)
+	malformed.store_string("{invalid")
+	malformed.close()
+	check(not Config.new("user://bad-config").error.is_empty(), "malformed config fails explicitly")
+	check(not Config.new("user://nonexistent-config").error.is_empty(), "missing config fails explicitly")
 	var scene: PackedScene = load("res://scenes/garden/garden.tscn")
 	var garden: Control = scene.instantiate()
 	root.add_child(garden)
@@ -147,6 +199,24 @@ func _run() -> void:
 	garden.active_tab = "Inventory"
 	garden._refresh_panel()
 	check(garden.panel.get_child_count() == 7, "inventory controls mounted")
+	garden.active_tab = "Journal"
+	garden._refresh_panel()
+	check(garden.panel.get_child_count() == 17, "journal collection and five quest controls")
+	garden.active_tab = "Settings"
+	garden._refresh_panel()
+	var before_font: int = garden.hud.get_theme_font_size("font_size")
+	garden.model.state.settings.large_text = true
+	garden.apply_settings()
+	check(garden.hud.get_theme_font_size("font_size") > before_font, "large text scales HUD")
+	garden.apply_settings()
+	check(garden.hud.get_theme_font_size("font_size") == 24, "text scaling is idempotent")
+	garden.model.state.settings.reduced_motion = true
+	garden._feedback(660.0)
+	check(garden.audio.playing, "feedback sends generated audio to player")
+	garden.model.state.settings.sound = false
+	garden.audio.stop()
+	garden._feedback(660.0)
+	check(not garden.audio.playing, "mute blocks sound")
 	garden.queue_free()
 	await process_frame
 	print("RESULT: %d checks, %d failures" % [checks, failures])
