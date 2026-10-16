@@ -5,3 +5,8 @@
 - Deterministic domain model with injected integer clock; UI/service adapters handle persistence and monotonic time.
 - Uploaded specification retained verbatim. No purchases, ads, accounts or network gameplay.
 - Implementation proceeds in local milestone commits; remote publishing is not assumed.
+- M2 uses eight data-driven upgrades: expansion, compost, irrigation, baskets, stand, helper, signage, learning garden. Prices use spec scaling except expansion's exact ladder. Growth reductions apply only to new plantings.
+- Save schema v2 migrates v1 preserving progress. Offline reconciliation processes helper then stand when simultaneous, clamps to 8 hours, shifts deadlines beyond cap, and persists its cursor.
+- Stand sells one item per tick, in plant-config order. Helper harvests every 5 seconds and never replants.
+- Upgrade purchases preserve a 5-coin seed reserve if no growing plants or inventory remain, preventing an empty-garden dead end.
+- Domain/services use explicit dependency injection rather than global autoloads. One programmatic garden UI replaces separate panel scenes for the initial slice; module boundaries remain independent of rendering.

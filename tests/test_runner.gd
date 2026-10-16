@@ -80,6 +80,62 @@ func _run() -> void:
 	for suffix: String in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists("user://garden.json" + suffix):
 			DirAccess.remove_absolute("user://garden.json" + suffix)
+	var progression := Model.new()
+	progression.advance_to(1000)
+	check(not progression.buy_upgrade("plots", 1000), "upgrade keeps seed reserve in empty garden")
+	progression.state.coins = 100000
+	progression.state.xp = 200
+	check(progression.buy_upgrade("plots", 1000) and progression.state.plots_unlocked == 5, "expansion opens plot")
+	check(progression.upgrade_price("plots") == 35, "expansion follows price ladder")
+	var original_growth: int = progression.growth_seconds("orchid")
+	check(progression.buy_upgrade("compost", 1000), "compost bought")
+	check(progression.growth_seconds("orchid") < original_growth, "compost reduces growth")
+	check(progression.buy_upgrade("baskets", 1000) and progression.sell_value("orchid") == 441, "integer sale bonus")
+	check(not progression.buy_upgrade("signage", 1000), "signage requires stand")
+	check(progression.buy_upgrade("stand", 1000), "stand unlock")
+	check(not progression.buy_upgrade("stand", 1000), "stand cannot buy twice")
+	var coins_before: int = progression.state.coins
+	progression.advance_to(1010)
+	check(progression.state.coins == coins_before, "stand never conjures goods")
+	progression.state.inventory.carrot = 2
+	var sale_value: int = progression.sell_value("carrot")
+	check(progression.advance_to(1020).income == sale_value, "stand consumes one real item per tick")
+	check(progression.state.inventory.carrot == 1, "stand decreases inventory")
+	check(progression.advance_to(1020).income == 0, "repeated reconciliation is idempotent")
+	check(progression.advance_to(1019).income == 0 and progression.state.last_update == 1020, "backward clock ignored")
+	check(progression.buy_upgrade("helper", 1020), "helper unlocked")
+	check(progression.plant(0, "carrot", 1020), "plant for helper")
+	var offline: Dictionary = progression.advance_to(1040)
+	check(offline.harvests == 1 and progression.state.plots[0].is_empty(), "helper harvests mature plant offline")
+	check(offline.income == sale_value * 2 and progression.state.inventory.carrot == 0, "chronological stand ticks include helper harvest")
+	check(progression.buy_upgrade("signage", 1040) and progression.stand_interval() == 8, "stand interval upgrade")
+	for i: int in range(20):
+		progression.buy_upgrade("compost", 1040)
+	check(progression.state.upgrades.compost == 5 and progression.upgrade_price("compost") == -1, "upgrade level cap")
+	var capped := Model.new()
+	capped.advance_to(1000)
+	capped.state.upgrades.stand = 1
+	capped.state.stand_at = 1000
+	capped.state.inventory.carrot = 10000
+	var report: Dictionary = capped.advance_to(1000 + 86400)
+	check(report.capped and report.elapsed == 28800, "eight-hour offline cap")
+	check(capped.state.inventory.carrot == 7120 and report.income == 2880 * 9, "capped ticks credit exact bounded income")
+	check(capped.advance_to(87400).income == 0, "offline cap cannot recredit same return")
+	var no_stand := Model.new()
+	no_stand.advance_to(1000)
+	no_stand.plant(0, "carrot", 1000)
+	no_stand.advance_to(1000 + 86400)
+	check(no_stand.phase(0, 87400) == 3 and no_stand.state.inventory.carrot == 0, "offline growth without free harvest")
+	var legacy: Dictionary = no_stand.state.duplicate(true)
+	legacy.version = 1
+	for key: String in ["upgrades", "last_update", "stand_at", "helper_at"]:
+		legacy.erase(key)
+	var migrated: Variant = no_stand.migrate(legacy)
+	check(no_stand.validate(migrated) and migrated.coins == legacy.coins, "version-one save migration")
+	var persisted := Save.new("user://offline-test.json")
+	check(persisted.store(capped), "offline result saved")
+	var reloaded := Model.new()
+	check(persisted.load_into(reloaded) and reloaded.advance_to(87400).income == 0, "restart cannot recredit offline income")
 	var scene: PackedScene = load("res://scenes/garden/garden.tscn")
 	var garden: Control = scene.instantiate()
 	root.add_child(garden)

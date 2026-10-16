@@ -1,0 +1,74 @@
+[
+  {
+    "id": "plots",
+    "name": "Garden expansion",
+    "base_cost": 20,
+    "multiplier": 1.55,
+    "max_level": 12,
+    "level_required": 1,
+    "description": "Unlock one more planting plot. Exact prices follow the plot price ladder."
+  },
+  {
+    "id": "compost",
+    "name": "Rich compost",
+    "base_cost": 25,
+    "multiplier": 1.55,
+    "max_level": 5,
+    "level_required": 1,
+    "description": "New seeds grow 5% faster per level."
+  },
+  {
+    "id": "irrigation",
+    "name": "Gentle irrigation",
+    "base_cost": 50,
+    "multiplier": 1.55,
+    "max_level": 5,
+    "level_required": 2,
+    "description": "New seeds grow 5% faster per level; stacks with compost."
+  },
+  {
+    "id": "baskets",
+    "name": "Market baskets",
+    "base_cost": 40,
+    "multiplier": 1.55,
+    "max_level": 5,
+    "level_required": 1,
+    "description": "All sales earn 5% more base value per level."
+  },
+  {
+    "id": "stand",
+    "name": "Flower stand",
+    "base_cost": 150,
+    "multiplier": 1.55,
+    "max_level": 1,
+    "level_required": 1,
+    "description": "Automatically sell one harvested item every 10 seconds. Needs inventory."
+  },
+  {
+    "id": "helper",
+    "name": "Harvest helper",
+    "base_cost": 600,
+    "multiplier": 1.55,
+    "max_level": 1,
+    "level_required": 3,
+    "description": "Harvest ready plants every 5 seconds. Does not plant seeds."
+  },
+  {
+    "id": "signage",
+    "name": "Stand signage",
+    "base_cost": 100,
+    "multiplier": 1.55,
+    "max_level": 3,
+    "level_required": 2,
+    "description": "Stand sells 2 seconds sooner per level; requires a stand."
+  },
+  {
+    "id": "soil",
+    "name": "Learning garden",
+    "base_cost": 75,
+    "multiplier": 1.55,
+    "max_level": 4,
+    "level_required": 2,
+    "description": "Harvests give 25% more base XP per level."
+  }
+]

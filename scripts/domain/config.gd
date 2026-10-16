@@ -3,6 +3,7 @@ extends RefCounted
 
 var plants: Dictionary = {}
 var economy: Dictionary = {}
+var upgrades: Dictionary = {}
 var error: String = ""
 
 func _init() -> void:
@@ -44,6 +45,29 @@ func _init() -> void:
 		plants[row.id] = row
 	if plants.size() != 5 or not plants.has("carrot"):
 		error = "Expected five species including starter carrot."
+
+	var upgrade_rows: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/upgrades.json"))
+	if not upgrade_rows is Array:
+		error = "Missing or malformed upgrades."
+		return
+	for row: Variant in upgrade_rows:
+		if not row is Dictionary or not row.get("id") is String or upgrades.has(row.id):
+			error = "Invalid upgrade identifier."
+			return
+		for field: String in ["base_cost", "max_level", "level_required"]:
+			if not integer(row.get(field), 1, 1000000):
+				error = "Invalid upgrade field: " + field
+				return
+		if not (row.get("multiplier") is float or row.get("multiplier") is int) or row.multiplier < 1 or row.multiplier > 3:
+			error = "Invalid upgrade scaling."
+			return
+		for field: String in ["name", "description"]:
+			if not row.get(field) is String:
+				error = "Missing upgrade description."
+				return
+		upgrades[row.id] = row
+	if upgrades.size() != 8:
+		error = "Expected eight upgrades."
 
 static func integer(value: Variant, low: int, high: int) -> bool:
 	if not (value is int or value is float):

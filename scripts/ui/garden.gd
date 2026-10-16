@@ -27,13 +27,19 @@ func _ready() -> void:
 		return
 	saves = Save.new()
 	saves.load_into(model)
-	clock_origin = int(Time.get_unix_time_from_system())
+	clock_origin = maxi(int(model.state.last_update), int(Time.get_unix_time_from_system()))
 	tick_origin = Time.get_ticks_msec()
 	get_tree().auto_accept_quit = false
 	_build()
 	_refresh_panel()
 	_refresh()
+	var offline: Dictionary = model.advance_to(now())
 	notice.text = saves.message if not saves.message.is_empty() else "Your first garden starts with a single seed."
+	if int(offline.elapsed) >= 60:
+		notice.text = "Welcome back · %d coins sold · %d plants harvested · %ds elapsed%s" % [int(offline.income), int(offline.harvests), int(offline.elapsed), " (8h cap applied)" if offline.capped else ""]
+		if not saves.message.is_empty():
+			notice.text += "\n" + saves.message
+	_refresh()
 	_save()
 
 func now() -> int:
@@ -44,10 +50,14 @@ func _process(_delta: float) -> void:
 		return
 	if now() != last_second:
 		last_second = now()
+		var progress: Dictionary = model.advance_to(last_second)
+		if int(progress.income) > 0 or int(progress.harvests) > 0 or last_second % 30 == 0:
+			_save()
+			_refresh_panel()
 		_refresh()
 
 func _notification(what: int) -> void:
-	if model == null or saves == null:
+	if model == null or saves == null or hud == null:
 		return
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save()
@@ -57,10 +67,15 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_RESUMED or what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		clock_origin = maxi(now(), int(Time.get_unix_time_from_system()))
 		tick_origin = Time.get_ticks_msec()
+		var offline: Dictionary = model.advance_to(now())
+		if int(offline.elapsed) >= 60:
+			notice.text = "Garden resumed · %d coins sold · %d harvested%s" % [int(offline.income), int(offline.harvests), " · 8h cap applied" if offline.capped else ""]
+		_refresh_panel()
 		_refresh()
 		_save()
 
 func _save() -> void:
+	model.advance_to(now())
 	model.state.saved_at = now()
 	if not saves.store(model) and notice != null:
 		notice.text = saves.message
@@ -121,7 +136,7 @@ func _build() -> void:
 	notice = _label(ui_root, "", 15, Color("#f0cf98"))
 	var tabs := HFlowContainer.new()
 	ui_root.add_child(tabs)
-	for tab: String in ["Seeds", "Inventory", "Settings"]:
+	for tab: String in ["Seeds", "Inventory", "Shop", "Settings"]:
 		var button := _button(tabs, tab, func() -> void:
 			active_tab = tab
 			_refresh_panel()
@@ -169,6 +184,7 @@ func _refresh() -> void:
 		hint.text += "\nTap a + plot to plant. Carrots grow in 8 seconds."
 
 func _on_plot(index: int) -> void:
+	model.advance_to(now())
 	if index >= int(model.state.plots_unlocked):
 		notice.text = "This plot is locked. Expand your garden in the shop."
 		return
@@ -179,7 +195,7 @@ func _on_plot(index: int) -> void:
 			notice.text = model.config.plants[species].name + " harvested. Sell it from Inventory."
 	elif phase == -1:
 		if model.plant(index, selected, now()):
-			notice.text = "%s planted · ready in %ds" % [model.config.plants[selected].name, int(model.config.plants[selected].growth_seconds)]
+			notice.text = "%s planted · ready in %ds" % [model.config.plants[selected].name, model.growth_seconds(selected)]
 		else:
 			notice.text = "Not enough coins or this species needs a higher level."
 	else:
@@ -203,7 +219,7 @@ func _refresh_panel() -> void:
 			for id: String in model.config.plants:
 				var plant: Dictionary = model.config.plants[id]
 				var locked: bool = model.level() < int(plant.level_required)
-				var text: String = "%s%s  ·  %d coins  ·  %ds  →  %d coins" % ["✓ " if selected == id else "", plant.name, int(plant.seed_cost), int(plant.growth_seconds), int(plant.base_sell_value)]
+				var text: String = "%s%s  ·  %d coins  ·  %ds  →  %d coins" % ["✓ " if selected == id else "", plant.name, int(plant.seed_cost), int(model.growth_seconds(id)), model.sell_value(id)]
 				if locked:
 					text += "  [Lv %d]" % int(plant.level_required)
 				var button := _button(panel, text, func() -> void:
@@ -217,7 +233,7 @@ func _refresh_panel() -> void:
 			_label(panel, "YOUR HARVEST", 13, Color("#bac99d"))
 			for id: String in model.config.plants:
 				var amount: int = int(model.state.inventory[id])
-				var button := _button(panel, "%s ×%d   ·   Sell one for %d" % [model.config.plants[id].name, amount, int(model.config.plants[id].base_sell_value)], func() -> void:
+				var button := _button(panel, "%s ×%d   ·   Sell one for %d" % [model.config.plants[id].name, amount, model.sell_value(id)], func() -> void:
 					var earned: int = model.sell(id, 1)
 					notice.text = "Sold for %d coins." % earned
 					_save()
@@ -231,6 +247,18 @@ func _refresh_panel() -> void:
 				_refresh()
 				_refresh_panel()
 			)
+		"Shop":
+			_label(panel, "INVEST IN YOUR GARDEN", 13, Color("#bac99d"))
+			_label(panel, "Stand: " + ("open · sells inventory every %ds" % model.stand_interval() if int(model.state.upgrades.stand) > 0 else "not yet built"), 15)
+			for id: String in model.config.upgrades:
+				var upgrade: Dictionary = model.config.upgrades[id]
+				var price: int = model.upgrade_price(id)
+				var text: String = "%s · %s" % [upgrade.name, "%d coins" % price if price > 0 else "MAX"]
+				text += " · %d/%d" % [int(model.state.upgrades[id]), int(upgrade.max_level)]
+				var button := _button(panel, text, func() -> void: _request_upgrade(id))
+				button.disabled = not model.can_upgrade(id)
+				_label(panel, upgrade.description + " [Level %d]" % int(upgrade.level_required), 13, Color("#b8c7a5"))
+			_label(panel, "If your garden and inventory are empty, keep 5 coins for a seed.", 13)
 		"Settings":
 			_label(panel, "MAKE YOURSELF AT HOME", 13, Color("#bac99d"))
 			for setting: String in ["large_text", "high_contrast", "reduced_motion"]:
@@ -250,3 +278,30 @@ func apply_settings() -> void:
 	theme.default_font_size = 20 if model.state.settings.large_text else 17
 	RenderingServer.set_default_clear_color(Color("#061009") if model.state.settings.high_contrast else Color("#0c1713"))
 	_refresh()
+
+func _request_upgrade(id: String) -> void:
+	var price: int = model.upgrade_price(id)
+	if price < 100:
+		_purchase(id)
+		return
+	var confirm := ConfirmationDialog.new()
+	confirm.title = model.config.upgrades[id].name
+	confirm.dialog_text = "%d coins\n%s" % [price, model.config.upgrades[id].description]
+	confirm.ok_button_text = "Buy upgrade"
+	confirm.confirmed.connect(func() -> void:
+		_purchase(id)
+		confirm.queue_free()
+	)
+	confirm.canceled.connect(confirm.queue_free)
+	add_child(confirm)
+	confirm.popup_centered(Vector2i(mini(int(size.x) - 24, 430), 200))
+
+func _purchase(id: String) -> void:
+	model.advance_to(now())
+	if model.buy_upgrade(id, now()):
+		notice.text = model.config.upgrades[id].name + " purchased."
+	else:
+		notice.text = "Purchase unavailable. Check your coins, level, and seed reserve."
+	_save()
+	_refresh()
+	_refresh_panel()

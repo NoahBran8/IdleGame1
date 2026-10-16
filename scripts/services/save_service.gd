@@ -19,7 +19,7 @@ func load_into(model: GardenModel) -> bool:
 		var parser := JSON.new()
 		if parser.parse(FileAccess.get_file_as_string(file)) != OK:
 			continue
-		var candidate: Variant = parser.data
+		var candidate: Variant = model.migrate(parser.data)
 		if model.validate(candidate):
 			model.state = candidate
 			if file.ends_with(".bak"):
