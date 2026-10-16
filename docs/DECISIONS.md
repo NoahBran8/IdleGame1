@@ -37,3 +37,6 @@
 - Expensive upgrades retain cost/effect display, cancel and captured-price validation in a reusable in-app confirmation instead of a native popup.
 - Six transient labels maximum; reduced motion never starts label tweens. Ordinary notices expire, save warnings persist and are repeated in Settings.
 - Software renderer timing samples vary substantially (roughly 28–57ms medians across development runs, with large p95 spikes); do not claim a stable speedup or mobile performance acceptance.
+
+## 0.6 storybook rendering
+Keep domain rules and save schema 5 stable during the art pass. Use original editable SVG building/plant/scenery textures, native static landscaping and existing reusable Controls. This supports independent world interaction and modest texture sizes without adding a large opaque backdrop, shader stack or external runtime dependency. Mature clusters use shared art and alpha-aware hits; use one silhouette at narrow widths to protect legibility. Autosave-only checkpoints must not rebuild interactive panels or discard focus; refresh content on actual inventory/income changes instead.

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="224" height="192" viewBox="0 0 224 192"><defs>
+<linearGradient id="leaf" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#c4e477"/><stop offset=".45" stop-color="#79b94e"/><stop offset="1" stop-color="#37814c"/></linearGradient>
+<linearGradient id="roof" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#ffbb7a"/><stop offset=".4" stop-color="#e97d57"/><stop offset="1" stop-color="#b85244"/></linearGradient>
+<linearGradient id="wall" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fff5ce"/><stop offset="1" stop-color="#dfb984"/></linearGradient>
+<linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dfae69"/><stop offset="1" stop-color="#986143"/></linearGradient>
+<linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9ee4da"/><stop offset=".6" stop-color="#55b7bd"/><stop offset="1" stop-color="#338f9e"/></linearGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e2f9e6"/><stop offset="1" stop-color="#72b5bb"/></linearGradient>
+</defs><path d="M15 109C-4 70 30 33 71 44c25-31 85-26 105 13 38 8 43 58 10 83-22 29-62 14-84 26-40 18-90-15-87-57z" fill="#477d54" opacity=".22"/>
+<path d="M17 100C2 68 32 34 72 48c25-30 82-27 100 13 39 5 40 52 9 74-25 25-59 10-81 22-40 17-88-18-83-57z" fill="#c3c59a"/>
+<path d="M28 98C15 71 40 47 76 59c24-28 71-23 86 12 37 5 37 40 10 57-25 21-53 6-76 17-32 13-74-17-68-47z" fill="url(#water)" stroke="#d4e5b8" stroke-width="4"/>
+<path d="M42 84q4-15 25-12m55-12q18 0 27 15M53 126q19 12 42 5m50-16q16 2 26-8" stroke="#c4f1dc" stroke-width="3" fill="none" stroke-linecap="round"/>
+<g fill="#90ba70" stroke="#5d9b66" stroke-width="1"><path d="M118 103c-14-13-30 7-18 14 11 7 28-2 18-12l-8 3z"/><path d="M64 100c-10-9-25 4-15 10 8 4 22-1 15-8l-6 2z"/></g>
+<g fill="#f6c0c9"><ellipse cx="110" cy="101" rx="8" ry="4"/><path d="m103 100 7-9 6 10z"/></g>
+<g fill="#e0d7b3" stroke="#b6b898" stroke-width="2"><ellipse cx="26" cy="65" rx="13" ry="8" transform="rotate(-28 26 65)"/><ellipse cx="45" cy="48" rx="14" ry="9"/><ellipse cx="166" cy="144" rx="18" ry="10"/><ellipse cx="189" cy="124" rx="12" ry="8"/></g>
+<path d="M167 64q-4-25 6-40m-1 40q10-21 18-27m-15 31q-2-18 10-22" stroke="#5a8e51" stroke-width="4" fill="none"/>
+<path d="M174 34v-12m15 18 5-10" stroke="#a17a47" stroke-width="7" stroke-linecap="round"/></svg>

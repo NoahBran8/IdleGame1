@@ -95,8 +95,10 @@ func _process(_delta: float) -> void:
 	if now() != last_second:
 		last_second = now()
 		var progress: Dictionary = model.advance_to(last_second)
-		if int(progress.income) > 0 or int(progress.harvests) > 0 or last_second % 30 == 0:
+		var stock_changed: bool = int(progress.income) > 0 or int(progress.harvests) > 0
+		if stock_changed or last_second % 30 == 0:
 			_save()
+		if stock_changed:
 			_refresh_panel()
 		_refresh()
 

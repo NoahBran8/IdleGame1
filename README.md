@@ -1,6 +1,6 @@
 # Garden Empire
 
-Version **0.5.0** · A playable, offline-first portrait gardening prototype built with **Godot 4.6.3 stable**. No external runtime dependencies, login, ads or purchases.
+Version **0.6.0** · A playable, offline-first portrait gardening prototype built with **Godot 4.6.3 stable**. No external runtime dependencies, login, ads or purchases.
 
 ![Godot gameplay preview — seeded demo fixture](docs/screenshots/garden-demo.png)
 
@@ -20,6 +20,14 @@ godot --path .
 
 ## Updating an existing game
 Download the latest main-branch ZIP or pull main, then open its project.godot in Godot and press F5. Keep the application name Garden Empire: the new build reads the same local save folder. Saves from schemas 1–4 migrate to schema 5 automatically, preserving coins, inventory, planted crops, upgrades, goals and settings. No reset is needed.
+
+## What's new in 0.6
+- Original storybook cottage, flower market, stone well, layered trees and lily pond; warm materials and consistent directional lighting.
+- Curved landscaped paths, grass detail, garden seating, dimensional soil beds and more detailed botanical crop art.
+- Mature beds show three blossoms on wider screens; each visible blossom targets its own bed. Narrow screens use single crop silhouettes and compact harvest checkmarks.
+- Stronger primary harvest action, tactile panels, selected seed medallions and larger world buildings where space permits.
+- No save schema, economy, progression, inventory or quest changes. Existing local saves load through the same application name and schema 5.
+- See [art direction and verification](docs/ART_DIRECTION_06.md).
 
 ## What's new in 0.5
 - Fixed compact coin/XP HUD and an expanding illustrated garden; the game world is no longer inside a scrolling page.
@@ -44,7 +52,7 @@ From this repository:
 ```sh
 tools/verify.sh
 ```
-This imports scripts, runs **627 automated checks** (140 core + 104 requests + 383 redesign/migration/layout checks), then launches a headless runtime smoke test. It isolates test data in a temporary directory.
+This imports scripts, runs **630 automated checks** (140 core + 104 requests + 386 redesign/migration/layout checks), then launches a headless runtime smoke test. It isolates test data in a temporary directory.
 
 Additional checks:
 ```sh
@@ -75,7 +83,7 @@ Developer coin control: `godot --path . -- --debug-garden` then Settings; only a
 
 ## Status and continuation
 Redesign audit, architecture, milestones and limitations: [UI_REDESIGN.md](docs/UI_REDESIGN.md).
-Desktop verification: 627 headless checks and 95 rendered pointer checks (25 original + 70 redesign). Actual screenshots show fresh state or explicitly seeded demo fixtures.
+Desktop verification: 630 headless checks and 160 rendered pointer checks (25 original + 135 redesign, including both side blossoms on every full-size bed). Actual screenshots show fresh state or explicitly seeded demo fixtures.
 
 The virtual software renderer produced variable frame times and large spikes; see UI_RENDER_METRICS.json and UI_REDESIGN.md. No stable Android FPS, battery, physical dp/safe-area, or screen-reader acceptance is claimed.
 

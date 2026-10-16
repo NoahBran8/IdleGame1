@@ -66,3 +66,8 @@ Outstanding:
 - Formal contrast and screen-reader audit; geometry/palette tests are partial accessibility evidence.
 - Independent usability testing of the new layout and long-term economy tuning.
 No Android APK, stable device FPS, accessibility certification, user retention or App Market/store readiness is claimed.
+
+
+## Subsequent visual milestone: 0.6
+See ART_DIRECTION_06.md for the storybook art audit, asset strategy, implementation and verification. The shell/model/save boundaries above remain intact. Current counts are 630 headless checks and 160 rendered pointer checks. Artwork and screenshots now reflect 0.6; the earlier milestone and timing figures above are retained as historical evidence.
+The 0.6 desktop sample recorded median 34.87ms / p95 55.62ms over 180 frames, 86 nodes at 320x640. This remains a software-renderer observation, not a stable performance improvement or Android acceptance result.

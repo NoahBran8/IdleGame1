@@ -146,6 +146,7 @@ func _run() -> void:
 	var started: int = game.feedback.animated_count
 	await click(game.board.plots[0])
 	check(game.feedback.animated_count == started,"reduced-motion planting uses no animation")
+	await _wide_bloom_hits(game)
 	if "--skip-benchmark" in OS.get_cmdline_user_args():
 		check(game.feedback.active_count <= 6,"effects remain bounded")
 		game.queue_free()
@@ -186,3 +187,40 @@ func _run() -> void:
 	print("REDESIGN POINTER: %d checks, %d failures" % [checks,failures])
 	print(JSON.stringify(report))
 	quit(0 if failures == 0 else 1)
+
+func _wide_bloom_hits(game: Control) -> void:
+	# Verify the added side blossoms through actual root-viewport pointer dispatch.
+	var previous: Dictionary = game.model.state.duplicate(true)
+	game.set_process(false)
+	game.model.state = game.model.fresh()
+	game.model.state.coins = 5000
+	game.model.state.xp = 200
+	game.model.state.plots_unlocked = 16
+	game.model.state.upgrades.plots = 12
+	game.model.state.settings.sound = false
+	game.model.state.settings.reduced_motion = true
+	root.size = Vector2i(540,960)
+	root.content_scale_size = root.size
+	for side: int in [0,1]:
+		for index: int in range(16):
+			game.model.state.plots[index] = {}
+			game.model.plant(index,"sunflower",game.now()-game.model.growth_seconds("sunflower"))
+		game._refresh()
+		for frame: int in range(6):
+			await process_frame
+		for index: int in range(16):
+			var tile: Control = game.board.plots[index]
+			var blossoms: Array[Rect2] = tile.plant_rects()
+			check(blossoms.size() == 3,"wide bed has three independently hittable blossoms")
+			var rect: Rect2 = blossoms[side]
+			await click(tile,rect.position+rect.size*Vector2(0.5,0.25))
+			check(game.model.state.plots[index].is_empty(),"side blossom %d harvests exactly bed %d" % [side,index])
+	check(game.model.state.inventory.sunflower == 32,"bloom clusters award one crop per bed")
+	game.model.state = previous
+	root.size = Vector2i(320,640)
+	root.content_scale_size = root.size
+	game._refresh()
+	game._refresh_panel()
+	game.set_process(true)
+	for frame: int in range(6):
+		await process_frame

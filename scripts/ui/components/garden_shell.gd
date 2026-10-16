@@ -16,7 +16,7 @@ static func build(game: Control) -> void:
 	margin.add_child(body)
 	game.ui_root = body
 	var hud := PanelContainer.new()
-	hud.add_theme_stylebox_override("panel", Design.box())
+	hud.add_theme_stylebox_override("panel", Design.box(Design.PAPER, Color("#c7b375")))
 	body.add_child(hud)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
@@ -38,7 +38,7 @@ static func build(game: Control) -> void:
 	game.level_progress.max_value = int(game.model.config.economy.xp_per_level)
 	game.level_progress.show_percentage = false
 	for part: String in ["background", "fill"]:
-		var style: StyleBoxFlat = Design.box(Color("#dfe8c7") if part == "background" else Color("#97b763"))
+		var style: StyleBoxFlat = Design.box(Color("#dfe8c7") if part == "background" else Color("#75a653"))
 		for edge: String in ["left", "right", "top", "bottom"]:
 			style.set("content_margin_" + edge, 0)
 		style.shadow_size = 0
@@ -120,6 +120,15 @@ static func build(game: Control) -> void:
 	game.harvest_all_button = game._button(actions, "", game._harvest_ready)
 	game.plant_all_button.add_theme_font_size_override("font_size", 13)
 	game.harvest_all_button.add_theme_font_size_override("font_size", 13)
+	# Primary action gets a stronger material treatment; native focus/disabled states remain.
+	for state: String in ["normal","hover","pressed"]:
+		var color := Color("#577c42") if state == "normal" else Color("#648b49") if state == "hover" else Color("#426737")
+		var style: StyleBoxFlat = Design.box(color,Color("#38572f"),14)
+		if state == "pressed":
+			style.shadow_size = 1
+		game.harvest_all_button.add_theme_stylebox_override(state,style)
+	for state: String in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+		game.harvest_all_button.add_theme_color_override(state,Color("#fffae8"))
 	var tabs := HBoxContainer.new()
 	dock_body.add_child(tabs)
 	for mode: String in ["Seeds","Buildings","Decor"]:

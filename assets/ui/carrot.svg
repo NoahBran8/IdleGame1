@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><path d="M21 29 L43 29 L32 59Z" fill="#ed914b" stroke="#b96735" stroke-width="2"/><path d="M32 30L18 10M32 29L32 5M32 30L46 10" stroke="#5b9b46" stroke-width="6" stroke-linecap="round"/><path d="M25 39h10m-7 8h6" stroke="#c36c38" stroke-width="2"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><defs><linearGradient id="petal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#ffdaa1"/><stop offset=".5" stop-color="#f5ab51"/><stop offset="1" stop-color="#d88539"/></linearGradient><linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b6d771"/><stop offset=".5" stop-color="#69a657"/><stop offset="1" stop-color="#347650"/></linearGradient></defs><path d="M23 25 45 23Q42 46 29 61q-4-11-6-36z" fill="url(#petal)" stroke="#c57d38" stroke-width="1"/>
+<path d="m28 28 2 24" stroke="#ffdaa0" stroke-width="2" stroke-linecap="round"/>
+<path d="m26 35 7 1m4 5 5-1m-13 6 5 1m-3 6 4-1" stroke="#c77c37" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M33 25C14 21 10 9 13 6c13 2 17 11 20 19C25 8 31 1 35 2c5 6 4 16 0 23C41 9 51 7 54 11c-2 10-11 14-19 16" fill="url(#green)" stroke="#4e8a48" stroke-width="1"/>
+<path d="m17 10 15 15m3-19-1 18m15-11-13 13" stroke="#c3dc89" fill="none" stroke-width="1.2"/></svg>

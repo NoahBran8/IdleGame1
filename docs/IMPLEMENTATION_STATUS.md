@@ -10,7 +10,7 @@ Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially 
 | M1 | Implemented, desktop verified | Real pointer planting → 8s growth → harvest → inventory sale → reload; atomic temp/rename saves and previous backup; tested corruption recovery. |
 | M2 | Implemented, desktop verified | Eight upgrades; XP; stand/helper; chronological capped offline processing; persisted cursor; 50 bulk-vs-incremental equivalence trials. |
 | M3 | Features implemented; mobile acceptance pending | Collection, five quests, tutorial hints, sound and accessibility settings, telemetry adapter. Real Godot renders inspected at 540px/320px. Hardware audio/haptics, touch, safe areas, contrast audit and usability still pending. |
-| M4 | Partial | 627 automated checks and 95 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
+| M4 | Partial | 630 automated checks and 160 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
 | M5 | Not started | No independent testers or retention results. No ads/IAP. |
 
 ## Material limitations
@@ -42,3 +42,10 @@ New reusable components live in scripts/ui/components/: palette/theme, selector 
 Current verification: 140 core + 104 request + 383 redesign checks; 25 original rendered workflow checks and 70 redesign pointer checks, including every plot at 320px, plant pixel hits, real quest collection, purchase cancellation/confirmation and whole-scene restart. All pass. Existing economic simulations remain historical 0.3/0.4 evidence; no economy retune was made.
 
 Desktop layout coverage includes 320×568, 320×640, 360×720, 540×960 and 600×1000, normal/large text. Palette text contrast checks pass; this is not a full accessibility certification. Virtual software-renderer frame timings vary and include substantial spikes. The real-device 30fps target, hardware touch, safe areas and battery/thermal acceptance remain unfinished. Do not mark M4 complete.
+
+## 0.6 art milestone
+Original textured SVG cottage/market/well/trees/pond and refined botanical crops replace the simpler icon-like world art. Landscape has a curved path, layered grass, pond planting, bench and material detail; beds have stronger depth. Wider mature beds show three blossoms, with alpha-aware hit testing across all three; narrow layouts show a single crop and compact harvest checkmark. Primary harvest styling and seed medallions reinforce action hierarchy.
+
+Autosave checkpoints now persist without rebuilding open panels, preserving button identity/focus during taps. Automated regression checks cover this; income/harvest changes still refresh panels. No economic/service rule or saved field changed, and schema remains 5.
+
+Verification: 630 headless checks and 160 rendered pointer checks pass; actual 540px/320px previews regenerated. See ART_DIRECTION_06.md for scope and limits. Android and independent user acceptance remain outstanding.

@@ -1,5 +1,8 @@
 extends Control
 
+const TREE = preload("res://assets/world/tree.svg")
+const POND = preload("res://assets/world/pond.svg")
+
 const Plot = preload("res://scripts/ui/plot.gd")
 const Building = preload("res://scripts/ui/components/world_building.gd")
 signal plot_pressed(index: int)
@@ -41,7 +44,7 @@ func _arrange() -> void:
 	var usable: float = size.x - 76
 	unit = minf((usable - 12) / 4.0,110)
 	tile_height = maxf(44,unit*0.70)
-	var building_height: float = 94 if size.y > 400 else 72 if size.y > 290 else 48
+	var building_height: float = 116 if size.y > 400 else 72 if size.y > 290 else 48
 	var grid_height: float = tile_height*4
 	var top: float = maxf(building_height+4, (size.y-grid_height)*0.45)
 	top = minf(top,maxf(0,size.y-grid_height-2))
@@ -55,8 +58,9 @@ func _arrange() -> void:
 	buildings.home.position = Vector2(8, maxf(0,top-building_height-9))
 	buildings.stand.size = Vector2(building_height*1.07,building_height)
 	buildings.stand.position = Vector2(usable-building_height*1.07-2,maxf(0,top-building_height-4))
-	buildings.well.size = Vector2(48,48)
-	buildings.well.position = Vector2((usable-48)*0.5,maxf(0,top-56))
+	var well_size: float = 62 if size.y > 400 else 48
+	buildings.well.size = Vector2.ONE*well_size
+	buildings.well.position = Vector2((usable-well_size)*0.5,maxf(0,top-well_size-8))
 	queue_redraw()
 
 func refresh(model: GardenModel, now: int, selected: String) -> void:
@@ -93,67 +97,103 @@ func refresh(model: GardenModel, now: int, selected: String) -> void:
 		tile.queue_redraw()
 
 func _draw() -> void:
-	# Scenery is made from original paths/shapes; every functional object is a child control.
-	draw_rect(Rect2(Vector2.ZERO,size),Color("#cce5a6"))
-	_ellipse(Vector2(size.x*0.3,12),Vector2(size.x*0.72,75),Color("#e1efbe"))
-	_ellipse(Vector2(size.x*0.75,28),Vector2(size.x*0.5,70),Color("#bed99a"))
+	# Static landscape redraws only on resize, decoration or building changes.
+	# Functional beds and buildings remain independent child controls above it.
+	draw_rect(Rect2(Vector2.ZERO,size),Color("#a8cf79"))
 	var usable: float = size.x-76
-	var path := PackedVector2Array([Vector2(usable*0.35,-10),Vector2(usable*0.45,grid_origin.y-13),Vector2(usable*0.16,size.y*0.55),Vector2(usable*0.7,size.y+10)])
-	draw_polyline(path,Color("#baa77b"),32,true)
-	draw_polyline(path,Color("#ead9ac"),26,true)
+	_ellipse(Vector2(size.x*0.2,0),Vector2(size.x*0.85,97),Color("#d4e8a6"))
+	_ellipse(Vector2(size.x*0.86,27),Vector2(size.x*0.57,75),Color("#bddc8d"))
+	_ellipse(Vector2(usable*0.45,size.y*0.55),Vector2(usable*0.70,size.y*0.49),Color("#b9db88"))
+	# Deterministic grass patches: no random state, simulation or per-frame effects.
+	for i: int in range(110):
+		var point := Vector2(fmod(i*73.7+11,size.x),fmod(i*127.3+37,size.y))
+		_ellipse(point,Vector2(6+i%4,2),Color("#a4cb73") if i%3 else Color("#c6e095"))
+		if i%4 == 0:
+			draw_polyline(PackedVector2Array([point+Vector2(-3,-3),point,point+Vector2(2,-5)]),Color("#8fba66"),1,true)
+	var route := Curve2D.new()
+	route.add_point(Vector2(usable*0.46,-15),Vector2.ZERO,Vector2(-9,90))
+	route.add_point(Vector2(usable*0.28,grid_origin.y-8),Vector2(20,-35),Vector2(-70,65))
+	route.add_point(Vector2(usable*0.18,size.y*0.68),Vector2(-40,-40),Vector2(30,55))
+	route.add_point(Vector2(usable*0.61,size.y+15),Vector2(-25,-48))
+	var path: PackedVector2Array = route.get_baked_points()
+	draw_polyline(path,Color("#91b369"),38,true)
+	draw_polyline(path,Color("#c6ad77"),31,true)
+	draw_polyline(path,Color("#edda9e"),26,true)
+	draw_polyline(path,Color("#f8e6b0"),19,true)
+	for i: int in range(11):
+		var point: Vector2 = route.sample_baked(route.get_baked_length()*float(i)/11)
+		_ellipse(point+Vector2(5,-2),Vector2(2.5,1),Color("#ceb985"))
 	var center := grid_origin + Vector2(unit*2,tile_height*2)
 	var island := PackedVector2Array([center+Vector2(-unit*2-4,0),center+Vector2(0,-tile_height*2-4),center+Vector2(unit*2+4,0),center+Vector2(0,tile_height*2+4)])
 	var shadow: PackedVector2Array = island.duplicate()
 	for i: int in range(shadow.size()):
-		shadow[i] += Vector2(0,7)
-	draw_colored_polygon(shadow,Color("#95b774"))
-	draw_colored_polygon(island,Color("#d6c290"))
+		shadow[i] += Vector2(0,10)
+	draw_colored_polygon(shadow,Color("#739c5b"))
+	draw_colored_polygon(island,Color("#c7b47e"))
 	var rim: PackedVector2Array = island.duplicate()
 	rim.append(island[0])
-	draw_polyline(rim,Color("#f9e8b9"),5,true)
+	draw_polyline(rim,Color("#f6e7b3"),5,true)
 	for edge: int in range(2):
 		var start: Vector2 = island[edge]
 		var finish: Vector2 = island[edge+1]
-		draw_line(start+Vector2(0,-10),finish+Vector2(0,-10),Color("#ab855f"),4,true)
-		draw_line(start+Vector2(0,-9),finish+Vector2(0,-9),Color("#f8e6b7"),2,true)
+		draw_line(start+Vector2(0,-10),finish+Vector2(0,-10),Color("#98744e"),5,true)
+		draw_line(start+Vector2(0,-12),finish+Vector2(0,-12),Color("#f8d99c"),3,true)
 		for i: int in range(5):
 			var point: Vector2 = start.lerp(finish,float(i)/4)
-			draw_line(point,point-Vector2(0,19),Color("#b68a5e"),5,true)
-			draw_circle(point-Vector2(0,19),3,Color("#fff0c9"))
-	# Background tree canopies and pond are decorative, not hidden button targets.
-	_tree(Vector2(19,34),0.70)
-	_tree(Vector2(size.x-24,size.y-48),0.85)
-	_tree(Vector2(size.x-31,34),0.70)
-	var pond := Vector2(usable*0.68,size.y-43)
-	_ellipse(pond,Vector2(43,23),Color("#e8dcb2"))
-	_ellipse(pond,Vector2(36,17),Color("#86c5c8"))
-	draw_arc(pond+Vector2(3,0),17,0.1,PI*0.9,18,Color("#d5f2df"),2,true)
-	for i: int in range(14):
-		var point := Vector2(12+fmod(i*73.0,maxf(1,usable-20)),size.y-15-fmod(i*17.0,35))
-		if decor == "wildflowers":
-			for p: int in range(5):
-				draw_circle(point+Vector2(cos(p*TAU/5),sin(p*TAU/5))*3,2.8,Color("#efb9cf") if i%2 else Color("#ffe6a0"))
-			draw_circle(point,2,Color("#d7a855"))
-		elif decor == "stone":
-			_ellipse(point,Vector2(7,3.5),Color("#e2dfc8"))
+			draw_line(point+Vector2(1,2),point-Vector2(0,20),Color("#9c7850"),6,true)
+			draw_line(point,point-Vector2(0,21),Color("#eac58a"),3,true)
+			draw_circle(point-Vector2(0,21),3,Color("#fff1c6"))
+	# Edge vegetation frames the play area without obscuring controls.
+	_tree(Vector2(22,48),0.63)
+	_tree(Vector2(size.x-18,54),0.72)
+	_tree(Vector2(size.x-16,size.y-32),0.91)
+	var free_height: float = size.y-(grid_origin.y+tile_height*4)
+	if free_height > 100:
+		var pond_size := Vector2(minf(usable*0.43,165),minf(free_height*0.95,142))
+		var pond_position := Vector2(usable-pond_size.x-4,size.y-pond_size.y-27)
+		draw_texture_rect(POND,Rect2(pond_position,pond_size),false)
+		_bench(Vector2(usable*0.14,size.y-68),minf(1.0,usable/400))
+		_tree(Vector2(18,size.y-70),0.67)
+	for i: int in range(20):
+		var point := Vector2(12+fmod(i*73.0,maxf(1,usable-20)),size.y-10-fmod(i*17.0,28))
+		if decor == "stone":
+			_ellipse(point+Vector2(0,2),Vector2(8,4),Color("#8da46d"))
+			_ellipse(point,Vector2(7,3.5),Color("#e7dfb4"))
 		else:
-			draw_line(point,point+Vector2(-3,-5),Color("#8ebd6c"),1.5,true)
-			draw_line(point,point+Vector2(3,-6),Color("#8ebd6c"),1.5,true)
+			draw_line(point,point+Vector2(-3,-6),Color("#689b51"),2,true)
+			draw_line(point,point+Vector2(3,-7),Color("#7eac5b"),2,true)
+			if decor == "wildflowers" or i%4 == 0:
+				_blossom(point-Vector2(0,7),Color("#f4b7bb") if i%2 else Color("#fff0b0"),2.3)
 	if has_irrigation:
-		draw_circle(Vector2(74,size.y-41),7,Color("#8fbec3"))
-		draw_line(Vector2(74,size.y-42),Vector2(62,size.y-52),Color("#80abb0"),4,true)
+		var point := Vector2(usable*0.20,size.y-47)
+		_ellipse(point+Vector2(0,5),Vector2(12,4),Color("#719d66"))
+		draw_circle(point,8,Color("#6cabb0"))
+		draw_line(point,point+Vector2(-16,-11),Color("#9fd2c6"),5,true)
+		draw_arc(point+Vector2(6,-2),7,-PI*0.7,PI*0.6,12,Color("#528e92"),3,true)
 
 func _ellipse(center: Vector2,radius: Vector2,color: Color) -> void:
 	var points := PackedVector2Array()
-	for i: int in range(32):
-		var angle: float = TAU*i/32.0
+	for i: int in range(24):
+		var angle: float = TAU*i/24.0
 		points.append(center+Vector2(cos(angle),sin(angle))*radius)
 	draw_colored_polygon(points,color)
 
 func _tree(point: Vector2,scale_factor: float) -> void:
-	draw_line(point+Vector2(0,15)*scale_factor,point-Vector2(0,22)*scale_factor,Color("#a27f52"),8*scale_factor,true)
-	_ellipse(point+Vector2(0,18)*scale_factor,Vector2(24,9)*scale_factor,Color("#a8c787"))
-	draw_circle(point+Vector2(-12,-17)*scale_factor,20*scale_factor,Color("#76a45c"))
-	draw_circle(point+Vector2(14,-20)*scale_factor,22*scale_factor,Color("#8bb76a"))
-	draw_circle(point+Vector2(0,-35)*scale_factor,24*scale_factor,Color("#a9cd7c"))
-	draw_circle(point+Vector2(-6,-42)*scale_factor,8*scale_factor,Color("#bcd98e"))
+	var extent := Vector2(106,122)*scale_factor
+	draw_texture_rect(TREE,Rect2(point-extent*Vector2(0.5,0.83),extent),false)
+
+func _blossom(point: Vector2,color: Color,radius: float) -> void:
+	for petal: int in range(5):
+		draw_circle(point+Vector2(cos(petal*TAU/5),sin(petal*TAU/5))*radius,radius,color)
+	draw_circle(point,radius*0.6,Color("#d6a64e"))
+
+func _bench(point: Vector2,factor: float) -> void:
+	draw_set_transform(point,0,Vector2.ONE*factor)
+	_ellipse(Vector2(22,12),Vector2(35,9),Color(0.25,0.4,0.2,0.16))
+	for x: int in [0,40]:
+		draw_line(Vector2(x,5),Vector2(x,17),Color("#6e6b4b"),4,true)
+		draw_line(Vector2(x,-4),Vector2(x,-19),Color("#6e6b4b"),3,true)
+	for y: int in [-17,-10,0,5]:
+		draw_line(Vector2(-6,y),Vector2(46,y),Color("#a27b4d"),6,true)
+		draw_line(Vector2(-6,y-1),Vector2(46,y-1),Color("#e8be7b"),3,true)
+	draw_set_transform(Vector2.ZERO)

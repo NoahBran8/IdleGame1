@@ -164,6 +164,22 @@ func _run() -> void:
 	game._update_notice()
 	check(not game.notice.text.is_empty() and game.notice.visible,"save warnings remain visible")
 	game.saves.message = ""
+	# Checkpoint-only autosaves must not replace controls during pointer/focus use.
+	game.set_process(false)
+	game.model.state.upgrades.stand = 0
+	game.model.state.inventory.carrot = 1
+	game._open_panel("Inventory")
+	var sale: Button = game.panel.get_child(1)
+	sale.grab_focus()
+	game.clock_origin = game.now()+30-game.now()%30
+	game.tick_origin = Time.get_ticks_msec()
+	game.last_second = -1
+	game._process(0.0)
+	var checkpoint: int = int(game.model.state.saved_at)
+	await process_frame
+	check(is_instance_valid(sale) and game.panel.get_child(1) == sale,"autosave retains inventory button instance")
+	check(is_instance_valid(sale) and sale.has_focus(),"autosave retains focused gameplay control")
+	check(Save.new(game.save_path).load_into(reloaded) and reloaded.state.saved_at == checkpoint,"checkpoint still persists player state")
 	game.queue_free()
 	await process_frame
 	print("REDESIGN: %d checks, %d failures" % [checks,failures])

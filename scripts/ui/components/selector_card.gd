@@ -17,6 +17,10 @@ func _draw() -> void:
 	var font: Font = get_theme_font("font")
 	var font_size: int = get_theme_font_size("font_size")
 	var image_size: float = 26 if compact else 26 if size.y < 88 else 36
+	if not compact:
+		var center := Vector2(size.x*0.5,6+image_size*0.5)
+		draw_circle(center+Vector2(0,1),image_size*0.59,Color("#d5dfac") if button_pressed else Color("#f0e6c9"))
+		draw_arc(center,image_size*0.59,PI,TAU,20,Color("#fffdf0"),1,true)
 	if picture != null:
 		draw_texture_rect(picture, Rect2(Vector2((size.x - image_size) * 0.5, 6), Vector2.ONE * image_size), false, Color(1,1,1,0.55) if disabled else Color.WHITE)
 	var ink := Color("#294b39") if not disabled else Color("#60715b")

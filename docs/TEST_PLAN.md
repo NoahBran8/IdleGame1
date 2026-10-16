@@ -42,3 +42,12 @@ Use README commands. In this session actual rendered commands used DISPLAY=:99, 
 - Desktop-only frame sample: UI_RENDER_METRICS.json. Software-renderer timings vary considerably; large p95 spikes remain. Not evidence of 30fps on a midrange Android.
 - The former exact-8-second UI countdown assertion was changed to a valid positive countdown bounded by growth duration. A real UI pass can cross a wall-clock second; maturity boundary arithmetic remains tested deterministically in core tests.
 - Purchase confirmation is an in-app component so the same mobile viewport, theme, keyboard/cancel and input path apply. Cancel and confirm are both exercised by real pointer events.
+
+## 0.6 art verification
+- tools/verify.sh passes 630 checks: 140 core, 104 requests and 386 redesign/layout/save checks, plus the headless game smoke.
+- New checkpoint regressions prove that a 30-second autosave keeps the same inventory Button, preserves keyboard focus and still writes a reloadable checkpoint. This fixes the stale-control failure discovered during rendered interaction testing.
+- Rendered workflow: 25 checks / 0 failures, including both real growth waits, sale, reservation, delivery and persistence.
+- Expanded rendered redesign: 135 checks / 0 failures. In addition to the existing 320px flows, a dense 540px garden exercises both added side-blossom targets on all 16 beds and proves one inventory crop per bed. These checks inject mature fixture timestamps; they are not extra real-time growth tests.
+- All seven actual preview images regenerated and normal/narrow garden images visually inspected. SVG import and runtime logs checked for script errors. Source diff whitespace checks pass.
+- Art assets are shared textures; scenery stays static between resize/look/building changes. Three-blossom beds are used only at plot widths >=75 logical pixels. Reduced-motion behavior remains static.
+- No Android hardware, battery/thermal or full accessibility claim. Latest software-renderer timing sample remains explicitly desktop-only.

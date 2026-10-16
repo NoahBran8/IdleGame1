@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192"><defs>
+<linearGradient id="leaf" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#c4e477"/><stop offset=".45" stop-color="#79b94e"/><stop offset="1" stop-color="#37814c"/></linearGradient>
+<linearGradient id="roof" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#ffbb7a"/><stop offset=".4" stop-color="#e97d57"/><stop offset="1" stop-color="#b85244"/></linearGradient>
+<linearGradient id="wall" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fff5ce"/><stop offset="1" stop-color="#dfb984"/></linearGradient>
+<linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dfae69"/><stop offset="1" stop-color="#986143"/></linearGradient>
+<linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9ee4da"/><stop offset=".6" stop-color="#55b7bd"/><stop offset="1" stop-color="#338f9e"/></linearGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e2f9e6"/><stop offset="1" stop-color="#72b5bb"/></linearGradient>
+</defs><ellipse cx="96" cy="170" rx="65" ry="13" fill="#315b3c" opacity=".18"/>
+<path d="M43 118v35q51 36 104-3v-34z" fill="#8c9f91" stroke="#627e75" stroke-width="3"/>
+<path d="M45 133q49 28 101-2m-78 7v24m45-24v25m-24-18v21" fill="none" stroke="#c9d1ae" stroke-width="3"/>
+<ellipse cx="95" cy="118" rx="52" ry="25" fill="#e1dfb9" stroke="#9cae97" stroke-width="3"/><ellipse cx="95" cy="118" rx="37" ry="15" fill="url(#water)"/>
+<path d="M50 124V49m89 74V49" stroke="#865f43" stroke-width="10"/><path d="M48 119V49m89 69V49" stroke="#d4ad70" stroke-width="4"/>
+<path d="m23 57 70-40 75 39-73 13z" fill="#548d69" stroke="#376b58" stroke-width="3"/>
+<path d="m23 57 70-40 2 52z" fill="#8db982"/><path d="m41 48 54 11m-35-22 34 10m-12-22 13 10" stroke="#b6d299" stroke-width="3"/>
+<path d="M94 69v37" stroke="#d5b775" stroke-width="3"/><path d="m82 101 24-1-4 17-17 1z" fill="#b48a5e" stroke="#775e43" stroke-width="2"/>
+<path d="M110 84h35l7 9" fill="none" stroke="#795b40" stroke-width="5"/>
+<path d="m29 155-10-20 17 4 7 19" fill="#60934f"/><circle cx="24" cy="137" r="5" fill="#ffe2a0"/></svg>
