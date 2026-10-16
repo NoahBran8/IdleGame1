@@ -1,0 +1,57 @@
+[
+  {
+    "id": "carrot",
+    "name": "Carrot",
+    "seed_cost": 5,
+    "growth_seconds": 8,
+    "base_sell_value": 9,
+    "level_required": 1,
+    "visual_key": "carrot",
+    "rarity_tier": 1,
+    "xp_reward": 2
+  },
+  {
+    "id": "sunflower",
+    "name": "Sunflower",
+    "seed_cost": 12,
+    "growth_seconds": 20,
+    "base_sell_value": 24,
+    "level_required": 1,
+    "visual_key": "sunflower",
+    "rarity_tier": 1,
+    "xp_reward": 4
+  },
+  {
+    "id": "rose",
+    "name": "Rose",
+    "seed_cost": 30,
+    "growth_seconds": 45,
+    "base_sell_value": 65,
+    "level_required": 2,
+    "visual_key": "rose",
+    "rarity_tier": 2,
+    "xp_reward": 8
+  },
+  {
+    "id": "lavender",
+    "name": "Lavender",
+    "seed_cost": 70,
+    "growth_seconds": 90,
+    "base_sell_value": 155,
+    "level_required": 3,
+    "visual_key": "lavender",
+    "rarity_tier": 2,
+    "xp_reward": 15
+  },
+  {
+    "id": "orchid",
+    "name": "Orchid",
+    "seed_cost": 180,
+    "growth_seconds": 180,
+    "base_sell_value": 420,
+    "level_required": 5,
+    "visual_key": "orchid",
+    "rarity_tier": 3,
+    "xp_reward": 30
+  }
+]

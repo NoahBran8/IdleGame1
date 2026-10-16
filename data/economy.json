@@ -1,0 +1,23 @@
+{
+  "starting_coins": 20,
+  "starting_plots": 4,
+  "max_coins": 9000000000000000,
+  "offline_cap_seconds": 28800,
+  "plot_costs": [
+    20,
+    35,
+    60,
+    95,
+    150,
+    240,
+    380,
+    600,
+    950,
+    1500,
+    2400,
+    3800
+  ],
+  "stand_cost": 150,
+  "stand_interval": 10,
+  "xp_per_level": 40
+}
