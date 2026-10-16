@@ -1,8 +1,8 @@
 class_name GardenAnalytics
 extends RefCounted
 
-const EVENTS: Array[String] = ["install_first_open", "tutorial_step_completed", "seed_planted", "plant_harvested", "item_sold", "upgrade_purchased", "stand_unlocked", "session_start", "session_end", "game_resumed", "save_error", "progression_milestone", "settings_changed"]
-const PARAMS: Array[String] = ["species", "quantity", "coins", "upgrade", "step", "milestone", "setting", "enabled", "reason", "elapsed"]
+const EVENTS: Array[String] = ["install_first_open", "tutorial_step_completed", "seed_planted", "plant_harvested", "item_sold", "upgrade_purchased", "stand_unlocked", "session_start", "session_end", "game_resumed", "save_error", "progression_milestone", "settings_changed", "order_fulfilled", "order_pinned"]
+const PARAMS: Array[String] = ["species", "quantity", "coins", "upgrade", "step", "milestone", "setting", "enabled", "reason", "elapsed", "order_id", "order"]
 var enabled: bool = true
 var path: String
 var session_id: String
@@ -25,7 +25,7 @@ func record(event: String, params: Dictionary = {}) -> bool:
 			return false
 		if value is String and value.length() > 100:
 			return false
-	var entry: Dictionary = {"event": event, "schema_version": 1, "app_version": "0.3.0",
+	var entry: Dictionary = {"event": event, "schema_version": 1, "app_version": str(ProjectSettings.get_setting("application/config/version", "0.4.0")),
 		"platform": OS.get_name(), "session_id": session_id,
 		"timestamp": int(Time.get_unix_time_from_system()), "parameters": params}
 	events.append(entry)

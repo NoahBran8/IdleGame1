@@ -1,0 +1,99 @@
+[
+  {
+    "id": "pantry",
+    "name": "The breakfast basket",
+    "customer": "Mira, next door",
+    "level_required": 1,
+    "items": {
+      "carrot": 3
+    },
+    "bonus_coins": 8,
+    "xp_reward": 4
+  },
+  {
+    "id": "sunshine",
+    "name": "A little sunshine",
+    "customer": "The village caf\u00e9",
+    "level_required": 1,
+    "items": {
+      "sunflower": 2
+    },
+    "bonus_coins": 12,
+    "xp_reward": 6
+  },
+  {
+    "id": "welcome",
+    "name": "A welcome gift",
+    "customer": "Rowan, the baker",
+    "level_required": 1,
+    "items": {
+      "carrot": 2,
+      "sunflower": 1
+    },
+    "bonus_coins": 12,
+    "xp_reward": 6
+  },
+  {
+    "id": "roses",
+    "name": "Flowers for a friend",
+    "customer": "The corner bookshop",
+    "level_required": 2,
+    "items": {
+      "rose": 2,
+      "sunflower": 1
+    },
+    "bonus_coins": 30,
+    "xp_reward": 10
+  },
+  {
+    "id": "quiet",
+    "name": "A quiet afternoon",
+    "customer": "The village caf\u00e9",
+    "level_required": 3,
+    "items": {
+      "lavender": 2,
+      "carrot": 3
+    },
+    "bonus_coins": 45,
+    "xp_reward": 14
+  },
+  {
+    "id": "bouquet",
+    "name": "The garden bouquet",
+    "customer": "Mira, next door",
+    "level_required": 3,
+    "items": {
+      "rose": 2,
+      "lavender": 1,
+      "sunflower": 2
+    },
+    "bonus_coins": 60,
+    "xp_reward": 18
+  },
+  {
+    "id": "orchid",
+    "name": "Something special",
+    "customer": "The corner bookshop",
+    "level_required": 5,
+    "items": {
+      "orchid": 1,
+      "lavender": 2
+    },
+    "bonus_coins": 90,
+    "xp_reward": 24
+  },
+  {
+    "id": "festival",
+    "name": "A table in bloom",
+    "customer": "The village hall",
+    "level_required": 5,
+    "items": {
+      "sunflower": 2,
+      "rose": 2,
+      "lavender": 1,
+      "orchid": 1
+    },
+    "bonus_coins": 120,
+    "xp_reward": 30
+  }
+]

@@ -12,6 +12,17 @@ if grep -Eq 'SCRIPT ERROR|Parse Error|Failed to load script' "$garden_check_root
     cat "$garden_check_root/import.log"
     exit 1
 fi
-godot --headless --path "$garden_repo" --script tests/test_runner.gd
-godot --headless --path "$garden_repo" --quit-after 120
+garden_runtime_check() {
+    if ! godot --headless --path "$garden_repo" "$@" > "$garden_check_root/runtime.log" 2>&1; then
+        cat "$garden_check_root/runtime.log"
+        return 1
+    fi
+    cat "$garden_check_root/runtime.log"
+    if grep -Eq 'SCRIPT ERROR|^ERROR:' "$garden_check_root/runtime.log"; then
+        return 1
+    fi
+}
+garden_runtime_check --script tests/test_runner.gd
+garden_runtime_check --script tests/test_requests.gd
+garden_runtime_check --quit-after 120
 printf 'Garden verification passed. Test data was isolated.\n'

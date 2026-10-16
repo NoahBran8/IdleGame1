@@ -19,7 +19,7 @@ func load_into(model: GardenModel) -> bool:
 		var parser := JSON.new()
 		if parser.parse(FileAccess.get_file_as_string(file)) != OK:
 			continue
-		if parser.data is Dictionary and (parser.data.get("version", 0) is float or parser.data.get("version", 0) is int) and parser.data.get("version", 0) > 3:
+		if parser.data is Dictionary and (parser.data.get("version", 0) is float or parser.data.get("version", 0) is int) and parser.data.get("version", 0) > GardenModel.SAVE_VERSION:
 			message = "This save needs a newer Garden Empire version. Original files preserved; saving paused."
 			blocked = true
 			return false

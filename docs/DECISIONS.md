@@ -20,3 +20,11 @@
 - Tests/preview inject separate save and event paths. tools/verify.sh also isolates XDG data to avoid changing player saves.
 - Added Android ARM64 preset with internet permission off; actual export attempt confirmed missing templates and Android SDK settings/tools. No external SDK downloads or device claims.
 - Retained provisional economy after simulation, with defects documented in ECONOMY.md rather than declaring final balance. The full 10k report is checked in.
+
+- User played the initial Godot build and asked to continue. 0.4 adds the spec's secondary order loop plus gardening feedback and batch controls, while preserving the tested base economy.
+- New pure request rules use deterministic replacement from eight data-driven templates; three offers, no expiry, no random or paid refresh. Pinning one request reserves its required quantities from normal and stand sales; explicit deliveries may use shared ingredients.
+- Request reward equals upgraded sale value plus declared bonus; XP is declared. Fulfilment consumes a unique id atomically. Wallet cap or missing stock leaves the offer/stock intact. Save v4 migrates all previous versions, preserving player progress.
+- Batch planting caps spending to the displayed quantity, even if an automatic sale arrives during the handler.
+- Original plant drawing now differentiates sunflower/rose/lavender/orchid/carrot, with fence/edging, countdowns, growth meters, XP meter and next unlock. No external artwork or dependencies.
+- Runtime verification now fails on script/runtime error output as well as exit status; Godot may otherwise return 0 on a script exception.
+- 0.4 request simulation is recorded separately from the historical 10k baseline so the methods are not conflated. No base economy retuning or retention claim.

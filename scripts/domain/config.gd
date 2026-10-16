@@ -5,6 +5,7 @@ var plants: Dictionary = {}
 var economy: Dictionary = {}
 var upgrades: Dictionary = {}
 var quests: Dictionary = {}
+var requests: Dictionary = {}
 var error: String = ""
 
 func _init(data_root: String = "res://data") -> void:
@@ -98,6 +99,39 @@ func _init(data_root: String = "res://data") -> void:
 				error = "Missing quest text."
 				return
 		quests[row.id] = row
+
+	var request_rows: Variant = _read_json(data_root + "/requests.json")
+	if not request_rows is Array or request_rows.size() < 3 or request_rows.size() > 50:
+		error = "Expected three to fifty garden requests."
+		return
+	var starter_requests: int = 0
+	for row: Variant in request_rows:
+		if not row is Dictionary or not row.get("id") is String or requests.has(row.id):
+			error = "Invalid request identifier."
+			return
+		for field: String in ["name", "customer"]:
+			if not row.get(field) is String or row[field].is_empty():
+				error = "Missing request text."
+				return
+		for field: String in ["level_required", "bonus_coins", "xp_reward"]:
+			if not integer(row.get(field), 1, 1000000):
+				error = "Invalid request reward or level."
+				return
+		if not row.get("items") is Dictionary or row.items.is_empty():
+			error = "Request needs a recipe."
+			return
+		for species: Variant in row.items:
+			if not species is String or not plants.has(species) or not integer(row.items[species], 1, 16):
+				error = "Invalid request ingredient."
+				return
+			if int(row.level_required) < int(plants[species].level_required):
+				error = "Request asks for a locked plant."
+				return
+		if row.level_required == 1:
+			starter_requests += 1
+		requests[row.id] = row
+	if starter_requests < 3:
+		error = "Three starter requests are needed."
 
 static func integer(value: Variant, low: int, high: int) -> bool:
 	if not (value is int or value is float):

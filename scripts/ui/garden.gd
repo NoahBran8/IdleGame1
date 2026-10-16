@@ -25,6 +25,11 @@ var analytics: GardenAnalytics
 var audio: AudioStreamPlayer
 var last_tutorial: int = 0
 var safe_margin: MarginContainer
+var plant_all_button: Button
+var harvest_all_button: Button
+var level_progress: ProgressBar
+var unlock_hint: Label
+var request_buttons: Dictionary = {}
 
 func _ready() -> void:
 	model = Model.new()
@@ -141,6 +146,20 @@ func _build() -> void:
 	_label(ui_root, "A LITTLE SEED. A GROWING WORLD.", 12, Color("#b9c992"))
 	_label(ui_root, "Garden Empire", 36, Color("#f4e5ba"))
 	hud = _label(ui_root, "", 20, Color("#efcf87"))
+	level_progress = ProgressBar.new()
+	level_progress.custom_minimum_size.y = 7
+	level_progress.show_percentage = false
+	level_progress.max_value = int(model.config.economy.xp_per_level)
+	for part: String in ["background", "fill"]:
+		var meter_style: StyleBoxFlat = _style(Color("#20392f") if part == "background" else Color("#c2cb87"))
+		meter_style.content_margin_top = 0
+		meter_style.content_margin_bottom = 0
+		meter_style.content_margin_left = 0
+		meter_style.content_margin_right = 0
+		meter_style.set_corner_radius_all(3)
+		level_progress.add_theme_stylebox_override(part, meter_style)
+	ui_root.add_child(level_progress)
+	unlock_hint = _label(ui_root, "", 13, Color("#b9c992"))
 	var divider := HSeparator.new()
 	ui_root.add_child(divider)
 	var title := HBoxContainer.new()
@@ -155,12 +174,19 @@ func _build() -> void:
 	board = Board.new()
 	board.plot_pressed.connect(_on_plot)
 	ui_root.add_child(board)
+	var garden_actions := GridContainer.new()
+	garden_actions.columns = 2
+	ui_root.add_child(garden_actions)
+	plant_all_button = _button(garden_actions, "", _plant_available)
+	harvest_all_button = _button(garden_actions, "", _harvest_ready)
+	plant_all_button.add_theme_font_size_override("font_size", 14)
+	harvest_all_button.add_theme_font_size_override("font_size", 14)
 	hint = _label(ui_root, "", 16, Color("#d2d9b9"))
 	notice = _label(ui_root, "", 15, Color("#f0cf98"))
 	var tabs := GridContainer.new()
 	tabs.columns = 3
 	ui_root.add_child(tabs)
-	for tab: String in ["Seeds", "Inventory", "Shop", "Journal", "Settings"]:
+	for tab: String in ["Seeds", "Inventory", "Requests", "Shop", "Journal", "Settings"]:
 		var button := _button(tabs, tab, func() -> void:
 			active_tab = tab
 			_refresh_panel()
@@ -205,6 +231,13 @@ func _refresh() -> void:
 	if hud == null:
 		return
 	hud.text = "%s coins    ·    Level %d    ·    %d XP" % [Model.compact(int(model.state.coins)), model.level(), int(model.state.xp)]
+	level_progress.value = int(model.state.xp) % int(model.config.economy.xp_per_level)
+	level_progress.tooltip_text = "%d / %d XP to level %d" % [int(level_progress.value), int(level_progress.max_value), model.level() + 1]
+	unlock_hint.text = "%d XP to level %d" % [int(level_progress.max_value - level_progress.value), model.level() + 1]
+	for id: String in model.config.plants:
+		if int(model.config.plants[id].level_required) > model.level():
+			unlock_hint.text += " · %s unlocks at level %d" % [model.config.plants[id].name, int(model.config.plants[id].level_required)]
+			break
 	board.refresh(model, now(), selected)
 	var ready_count: int = 0
 	var growing: int = 0
@@ -214,6 +247,13 @@ func _refresh() -> void:
 		elif model.phase(i, now()) >= 0:
 			growing += 1
 	hint.text = "%d ready to harvest · %d growing · %d open plots" % [ready_count, growing, int(model.state.plots_unlocked) - ready_count - growing]
+	if plant_all_button != null:
+		var quote: Dictionary = model.planting_quote(selected)
+		plant_all_button.text = "Plant %d × %s · %d coins" % [int(quote.count), model.config.plants[selected].name, int(quote.cost)]
+		plant_all_button.set_meta("quoted_count", int(quote.count))
+		plant_all_button.disabled = int(quote.count) == 0
+		harvest_all_button.text = "Harvest %d ready" % ready_count
+		harvest_all_button.disabled = ready_count == 0
 	match int(model.state.onboarding):
 		0:
 			hint.text += "\nChoose Carrot below, then tap a + plot."
@@ -253,6 +293,7 @@ func _on_plot(index: int) -> void:
 func _refresh_panel() -> void:
 	if panel == null:
 		return
+	request_buttons.clear()
 	for child: Node in panel.get_children():
 		panel.remove_child(child)
 		child.queue_free()
@@ -269,6 +310,7 @@ func _refresh_panel() -> void:
 					text += "  [Lv %d]" % int(plant.level_required)
 				var button := _button(panel, text, func() -> void:
 					selected = id
+					_refresh()
 					notice.text = plant.name + " selected. Tap an empty plot."
 					_refresh_panel()
 				)
@@ -278,7 +320,8 @@ func _refresh_panel() -> void:
 			_label(panel, "YOUR HARVEST", 13, Color("#bac99d"))
 			for id: String in model.config.plants:
 				var amount: int = int(model.state.inventory[id])
-				var button := _button(panel, "%s ×%d   ·   Sell one for %d" % [model.config.plants[id].name, amount, model.sell_value(id)], func() -> void:
+				var reserved: int = model.reserved_quantity(id)
+				var button := _button(panel, "%s ×%d%s · Sell one for %d" % [model.config.plants[id].name, amount, " (%d reserved)" % reserved if reserved else "", model.sell_value(id)], func() -> void:
 					var earned: int = model.sell(id, 1)
 					notice.text = "Sold for %d coins." % earned
 					if earned > 0:
@@ -288,8 +331,8 @@ func _refresh_panel() -> void:
 					_refresh()
 					_refresh_panel()
 				)
-				button.disabled = amount <= 0
-			_button(panel, "Sell all harvested plants", func() -> void:
+				button.disabled = model.available_to_sell(id) <= 0
+			_button(panel, "Sell all unreserved plants", func() -> void:
 				var count_before: int = int(model.state.sales)
 				var earned: int = model.sell_all()
 				notice.text = "Harvest sold for %d coins." % earned
@@ -300,6 +343,12 @@ func _refresh_panel() -> void:
 				_refresh()
 				_refresh_panel()
 			)
+		"Requests":
+			_label(panel, "THE NEIGHBOURHOOD NOTICEBOARD", 13, Color("#bac99d"))
+			_label(panel, "Grow for your neighbours. Requests never expire. Pin one to keep its crops safe from manual and stand sales.", 15)
+			_label(panel, "%d deliveries completed" % int(model.state.orders_completed), 13, Color("#efcf87"))
+			for offer: Dictionary in model.state.orders:
+				_request_card(int(offer.uid))
 		"Shop":
 			_label(panel, "INVEST IN YOUR GARDEN", 13, Color("#bac99d"))
 			_label(panel, "Stand: " + ("open · sells inventory every %ds" % model.stand_interval() if int(model.state.upgrades.stand) > 0 else "not yet built"), 15)
@@ -412,6 +461,7 @@ func _scale_text(node: Node, scale_factor: float) -> void:
 
 func _feedback(frequency: float, index: int = -1) -> void:
 	if model.state.settings.sound:
+		audio.stop()
 		audio.stream = Audio.tone(frequency)
 		audio.play()
 	if not model.state.settings.reduced_motion:
@@ -468,3 +518,68 @@ func _exit_tree() -> void:
 	if audio != null:
 		audio.stop()
 		audio.stream = null
+
+func _plant_available() -> void:
+	model.advance_to(now())
+	var count: int = model.plant_available(selected, now(), int(plant_all_button.get_meta("quoted_count", 0)))
+	if count > 0:
+		notice.text = "%d %s seeds planted. Your garden is growing." % [count, model.config.plants[selected].name]
+		_event("seed_planted", {"species": selected, "quantity": count})
+		_feedback(440.0)
+	_save()
+	_refresh()
+	_refresh_panel()
+
+func _harvest_ready() -> void:
+	model.advance_to(now())
+	var count: int = model.harvest_ready(now())
+	if count > 0:
+		notice.text = "%d plants harvested. Sell your surplus or deliver a request." % count
+		_event("plant_harvested", {"quantity": count})
+		_feedback(880.0)
+	_save()
+	_refresh()
+	_refresh_panel()
+
+func _request_card(uid: int) -> void:
+	var template: Dictionary = model.order_template(uid)
+	var pinned: bool = int(model.state.pinned_order) == uid
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", _style(Color("#1a3027"), Color("#d9c487") if pinned else Color("#42634a")))
+	panel.add_child(card)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 8)
+	card.add_child(content)
+	_label(content, template.name + (" · PINNED" if pinned else ""), 19, Color("#f4e5ba"))
+	_label(content, template.customer, 13, Color("#b9c992"))
+	for species: String in template.items:
+		var have: int = int(model.state.inventory[species])
+		var need: int = int(template.items[species])
+		_label(content, "%s · %d / %d%s" % [model.config.plants[species].name, mini(have, need), need, " · Ready" if have >= need else " · Grow %d more" % (need - have)], 15)
+	var reward: int = model.order_reward(uid)
+	_label(content, "%d coins + %d XP · includes %d bonus coins" % [reward, int(template.xp_reward), int(template.bonus_coins)], 14, Color("#efcf87"))
+	var pin := _button(content, "Unpin · release reserved crops" if pinned else "Pin · reserve these crops", func() -> void:
+		if model.pin_order(0 if int(model.state.pinned_order) == uid else uid):
+			notice.text = "Request pinned. Its ingredients are protected from sales." if int(model.state.pinned_order) != 0 else "Crops released for sale."
+			_event("order_pinned", {"order_id": uid, "enabled": int(model.state.pinned_order) != 0})
+			_save()
+			_refresh()
+			_refresh_panel()
+	)
+	var deliver := _button(content, "Deliver for %d coins" % reward, func() -> void: _deliver_order(uid))
+	deliver.disabled = not model.can_fulfill(uid)
+	request_buttons[uid] = {"pin": pin, "deliver": deliver}
+
+func _deliver_order(uid: int) -> void:
+	# The id is consumed atomically, so stale buttons cannot deliver twice.
+	var template: Dictionary = model.order_template(uid)
+	var reward: int = model.order_reward(uid)
+	if model.fulfill_order(uid):
+		notice.text = "%s delivered · +%d coins · +%d XP" % [template.name, reward, int(template.xp_reward)]
+		_event("order_fulfilled", {"order_id": uid, "coins": reward, "order": template.id})
+		_feedback(1046.5)
+	else:
+		notice.text = "Delivery unavailable. Check the ingredients and wallet space."
+	_save()
+	_refresh()
+	_refresh_panel()

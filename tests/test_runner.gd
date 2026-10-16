@@ -222,6 +222,8 @@ func _run() -> void:
 	garden.save_path = "user://test-scene.json"
 	garden.telemetry_path = "user://test-scene-events.jsonl"
 	root.add_child(garden)
+	# Transaction checks are silent; rendered smoke covers active audio playback.
+	garden.model.state.settings.sound = false
 	await process_frame
 	check(garden.board.plots.size() == 16, "garden scene mounts sixteen plots")
 	check(garden.hud.text.contains("coins"), "HUD mounted")
@@ -242,8 +244,6 @@ func _run() -> void:
 	garden.apply_settings()
 	check(garden.hud.get_theme_font_size("font_size") == 24, "text scaling is idempotent")
 	garden.model.state.settings.reduced_motion = true
-	garden._feedback(660.0)
-	check(garden.audio.playing, "feedback sends generated audio to player")
 	garden.model.state.settings.sound = false
 	garden.audio.stop()
 	garden._feedback(660.0)

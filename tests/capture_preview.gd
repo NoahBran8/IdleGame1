@@ -14,11 +14,13 @@ func _capture() -> void:
 	garden.set_process(false)
 	garden.model.state = garden.model.fresh()
 	garden.model.advance_to(garden.now())
+	garden.notice.text = "Your first garden starts with a single seed."
 	garden._refresh()
 	garden._refresh_panel()
 	for frame: int in range(10):
 		await process_frame
 	root.get_texture().get_image().save_png("res://docs/screenshots/garden-start.png")
+	print("Captured fresh garden.")
 	# Clearly documented demo fixture to preview all procedural plant varieties.
 	garden.model.state.coins = 1268
 	garden.model.state.xp = 200
@@ -38,6 +40,26 @@ func _capture() -> void:
 	for frame: int in range(10):
 		await process_frame
 	root.get_texture().get_image().save_png("res://docs/screenshots/garden-demo.png")
+	print("Captured garden demo.")
+	garden.model.state.inventory.carrot = 3
+	garden.model.state.inventory.sunflower = 2
+	garden.model.pin_order(1)
+	garden.active_tab = "Requests"
+	garden._refresh_panel()
+	for frame: int in range(5):
+		await process_frame
+	var scroll: ScrollContainer
+	for child: Node in garden.get_children():
+		if child is ScrollContainer:
+			scroll = child
+	scroll.ensure_control_visible(garden.panel)
+	for frame: int in range(5):
+		await process_frame
+	root.get_texture().get_image().save_png("res://docs/screenshots/garden-requests.png")
+	print("Captured requests demo.")
+	garden.active_tab = "Seeds"
+	garden._refresh_panel()
+	scroll.scroll_vertical = 0
 	root.size = Vector2i(320, 960)
 	root.content_scale_size = Vector2i(320, 960)
 	garden.model.state.settings.large_text = true
@@ -45,7 +67,7 @@ func _capture() -> void:
 	for frame: int in range(10):
 		await process_frame
 	root.get_texture().get_image().save_png("res://docs/screenshots/garden-320.png")
-	print("Captured real Godot renderings (start, demo fixture, 320px large text).")
+	print("Captured real Godot renderings (start, demo fixture, requests, 320px large text).")
 	garden.queue_free()
 	await process_frame
 	quit()

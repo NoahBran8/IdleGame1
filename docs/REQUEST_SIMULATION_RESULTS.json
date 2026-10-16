@@ -1,0 +1,28 @@
+{
+  "app_version": "0.4.0",
+  "deliveries_per_player": {
+    "max": 62,
+    "median": 47,
+    "min": 11,
+    "samples": 1000
+  },
+  "failures": 0,
+  "first_delivery_seconds": {
+    "max": 171,
+    "median": 70,
+    "min": 20,
+    "samples": 1000
+  },
+  "method": "One hour of request-focused synthetic play, visits 20-90s apart, then offline returns at day 1/day 7 and JSON save roundtrip. Uses real seed costs, crops, upgrades and quest rewards. Checks reservations, valid states, stale deliveries and repeated offline processing.",
+  "runs": 1000,
+  "runtime_seconds": 45.446,
+  "seed": 20261016,
+  "total_bonus_coins": 1608220,
+  "total_deliveries": 43757,
+  "wallet_after_7d": {
+    "max": 3970,
+    "median": 1356,
+    "min": 0,
+    "samples": 1000
+  }
+}

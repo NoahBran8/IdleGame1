@@ -34,3 +34,12 @@ Seed 20261015. One hour with visits every 8–20s in the first minute, then ever
 - These are synthetic policies, not retention, monetization, user satisfaction or revenue estimates. No economic tuning was silently changed to make the simulation look successful.
 
 Next: test early stand discovery and upgrade choices with independent players, then retune progression curve, plant ROI tradeoffs and investment pacing, rerunning deterministic simulations after each material change.
+
+## 0.4 neighbourhood requests
+Plant prices, growth durations, upgrade prices and the 40-XP level step are unchanged. data/requests.json defines eight recipes. Three offers remain on the board indefinitely; after delivery a new unique id selects an eligible recipe deterministically, excluding the other two templates.
+
+Delivery coins = sum(quantity × current upgraded sale value) + configured bonus coins; XP is explicit in each recipe. At base prices, the starter carrot basket consumes 3 carrots, pays 35 coins (27 value + 8 bonus), and adds 4 XP. Baskets upgrades improve sale value in both orders and normal sales. Pinned stock is protected from all ordinary sales; other explicit deliveries can consume shared ingredients. There is no paid refresh, randomness, expiry or free-stock payout.
+
+New synthetic evidence: REQUEST_SIMULATION_RESULTS.json, 1,000 request-focused runs, seed 20261016, visits every 20–90 seconds during one hour, then day-1/day-7 returns and a JSON save roundtrip. No failed invariants; 43,757 total deliveries, 1,608,220 total bonus coins. Median first delivery: 70s (range 20–171s). Median completed deliveries: 47 (range 11–62). Median final wallet: 1,356 coins. Zero wallet snapshots remain playable when stock/plants exist. These figures describe this synthetic policy, not an improvement in human retention or a matched comparison against the original four strategies.
+
+The original baseline results above remain historical 0.3 evidence. Existing long-term XP/content and ROI limitations are unresolved. Next balance work should compare request-focused and sale-focused policies under matched visit schedules, and test the noticeboard with independent players.

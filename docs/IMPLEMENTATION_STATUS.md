@@ -1,7 +1,7 @@
 # Implementation status
 
 ## Verified playable scope
-Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially open), five plants with three timed growth stages, planting/harvesting, inventory sell-one/all, integer coin wallet, XP/level gates, eight upgrades, stocked flower stand, later harvest helper, eight-hour offline growth/sales cap, local saves/backups/migrations, collection, five permanent quests, contextual onboarding, generated sound/mute, reduced motion, large text, high contrast, local-only telemetry and debug-gated balance control.
+Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially open), five plants with three timed growth stages, planting/harvesting, inventory sell-one/all, integer coin wallet, XP/level gates, eight upgrades, stocked flower stand, later harvest helper, eight-hour offline growth/sales cap, local saves/backups/migrations, collection, five permanent quests, contextual onboarding, generated sound/mute, reduced motion, large text, high contrast, local-only telemetry and debug-gated balance control. Version 0.4 adds a three-card repeatable request board (eight recipes), optional crop reservations, batch gardening, plot countdown/progress meters, an XP/unlock hint and richer original plant/garden art.
 
 ## Milestone acceptance
 | Milestone | Status | Evidence / limit |
@@ -10,7 +10,7 @@ Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially 
 | M1 | Implemented, desktop verified | Real pointer planting → 8s growth → harvest → inventory sale → reload; atomic temp/rename saves and previous backup; tested corruption recovery. |
 | M2 | Implemented, desktop verified | Eight upgrades; XP; stand/helper; chronological capped offline processing; persisted cursor; 50 bulk-vs-incremental equivalence trials. |
 | M3 | Features implemented; mobile acceptance pending | Collection, five quests, tutorial hints, sound and accessibility settings, telemetry adapter. Real Godot renders inspected at 540px/320px. Hardware audio/haptics, touch, safe areas, contrast audit and usability still pending. |
-| M4 | Partial | 141 automated checks and 11 rendered interaction checks pass. 10k synthetic players pass invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
+| M4 | Partial | 244 automated checks and 21 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
 | M5 | Not started | No independent testers or retention results. No ads/IAP. |
 
 ## Material limitations
@@ -26,3 +26,10 @@ Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially 
 Core rules: scripts/domain/{config,game_model}.gd. Adapters: scripts/services/{save_service,analytics_service,audio_service}.gd. Rendering/UI: scripts/ui/{garden,garden_board,plot}.gd and scenes/garden/garden.tscn. Tuning: data/*.json. Verification: tests/*.gd and tools/verify.sh. Android: export_presets.cfg and docs/ANDROID.md.
 
 Run tools/verify.sh, then follow CONTINUE.md and ANDROID.md. Keep each next change verifiable and preserve local player saves. All screenshots are actual engine captures; demo images use labelled test fixtures.
+
+## 0.4 update
+Existing v3 player saves migrate to v4 without altering earned coins, XP, crops, upgrades, quests or settings. Three unique offer ids and one optional reservation persist with a monotonic delivery cursor. Requests have no expiry or random rewards; reward is current sale value plus an explicit bonus, with XP awarded on delivery. Automatic/manual sales preserve pinned ingredients; another explicit delivery can use shared stock. New recipes appear in replacement offers as level gates permit.
+
+Batch planting honours the last displayed quantity and affordability; batch harvest collects mature plants only. No base plant prices, growth times or XP curve changed. Added local order events; no remote analytics.
+
+Verified 0.4 evidence: 244 core/feature checks; 21 actual GUI pointer checks through planting, real growth, batch harvest, pin, surplus sale, delivery and restart; 1,000 request-focused synthetic players with no failed state/reservation/payout invariants. Captured actual start/demo/request-board/320px screenshots. This does not finish Android or independent usability acceptance.
