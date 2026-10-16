@@ -38,7 +38,7 @@ func phase(index: int, now: int) -> int:
 	return clampi(int(3.0 * max(0, now - int(plot.planted_at_utc)) / total), 0, 2)
 
 func plant(index: int, species: String, now: int) -> bool:
-	if not config.plants.has(species) or index < 0 or index >= int(state.plots_unlocked):
+	if not config.plants.has(species) or index < 0 or index >= int(state.plots_unlocked) or now < 0 or now > MAX_COINS - 1000000:
 		return false
 	var row: Dictionary = config.plants[species]
 	if not state.plots[index].is_empty() or level() < int(row.level_required) or int(state.coins) < int(row.seed_cost):
@@ -53,6 +53,8 @@ func harvest(index: int, now: int) -> bool:
 	if phase(index, now) != 3:
 		return false
 	var species: String = state.plots[index].species_id
+	if int(state.inventory[species]) >= MAX_COINS:
+		return false
 	state.onboarding = maxi(2, int(state.onboarding))
 	state.inventory[species] = int(state.inventory[species]) + 1
 	state.xp = mini(MAX_COINS, int(state.xp) + harvest_xp(species))
@@ -102,7 +104,7 @@ func validate(candidate: Variant) -> bool:
 			continue
 		if index >= int(candidate.plots_unlocked) or not config.plants.has(p.get("species_id", "")):
 			return false
-		if p.get("plot_id") != index:
+		if not Config.integer(p.get("plot_id"), 0, 15) or p.plot_id != index:
 			return false
 		if not Config.integer(p.get("planted_at_utc"), 0, MAX_COINS) or not Config.integer(p.get("maturity_at_utc"), 1, MAX_COINS):
 			return false
@@ -115,9 +117,11 @@ func validate(candidate: Variant) -> bool:
 			return false
 	if not candidate.get("discovered") is Array:
 		return false
+	var discoveries: Array = []
 	for species: Variant in candidate.discovered:
-		if not species is String or not config.plants.has(species):
+		if not species is String or not config.plants.has(species) or species in discoveries:
 			return false
+		discoveries.append(species)
 	if not candidate.get("settings") is Dictionary:
 		return false
 	for key: String in ["reduced_motion", "high_contrast", "large_text", "sound", "local_telemetry"]:
@@ -178,7 +182,7 @@ func keeps_seed_path(price: int) -> bool:
 	return false
 
 func buy_upgrade(id: String, now: int) -> bool:
-	if not can_upgrade(id):
+	if now < 0 or now > MAX_COINS - 1000000 or not can_upgrade(id):
 		return false
 	state.onboarding = maxi(4, int(state.onboarding))
 	state.coins = int(state.coins) - upgrade_price(id)
@@ -201,6 +205,8 @@ func advance_to(target: int) -> Dictionary:
 	var harvests_before: int = int(state.harvests)
 	var previous: int = int(state.last_update)
 	var result: Dictionary = {"income": 0, "harvests": 0, "elapsed": 0, "capped": false}
+	if target < 0 or target > MAX_COINS - 1000000:
+		return result
 	if previous == 0:
 		state.last_update = target
 		state.stand_at = target
@@ -213,6 +219,25 @@ func advance_to(target: int) -> Dictionary:
 	var next_stand: int = int(state.stand_at) + stand_interval() if int(state.upgrades.stand) > 0 else MAX_COINS
 	var next_helper: int = int(state.helper_at) + 5 if int(state.upgrades.helper) > 0 else MAX_COINS
 	while mini(next_stand, next_helper) <= end:
+		# Skip idle automation ticks without changing each machine's tick phase.
+		var has_crops: bool = false
+		for plot: Dictionary in state.plots:
+			if not plot.is_empty():
+				has_crops = true
+				break
+		if not has_crops and next_helper != MAX_COINS:
+			state.helper_at = int(state.helper_at) + maxi(0, (end - int(state.helper_at)) / 5) * 5
+			next_helper = MAX_COINS
+		var has_inventory: bool = false
+		for amount: Variant in state.inventory.values():
+			if int(amount) > 0:
+				has_inventory = true
+				break
+		if not has_inventory and next_helper == MAX_COINS and next_stand != MAX_COINS:
+			state.stand_at = int(state.stand_at) + maxi(0, (end - int(state.stand_at)) / stand_interval()) * stand_interval()
+			next_stand = MAX_COINS
+		if mini(next_stand, next_helper) > end:
+			break
 		if next_helper <= next_stand:
 			for index: int in range(int(state.plots_unlocked)):
 				harvest(index, next_helper)

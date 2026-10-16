@@ -16,3 +16,7 @@
 - Event adapter writes a bounded local JSONL journal (256 KiB rotation), no persistent install identifier, no external endpoint. Event/parameter allowlists reject unknown fields. Local logs can be disabled.
 - Developer coin button exists only in debug builds with explicit --debug-garden user argument. Release builds cannot enable it.
 - Initial network failure was sandbox socket access. Supported additional network permission allows proxy access; git ls-remote now confirms origin has no refs.
+- M4 preparation: optimization skips empty automation ticks while preserving tick phase; 50 seeded bulk/incremental equivalence trials guard behavior.
+- Tests/preview inject separate save and event paths. tools/verify.sh also isolates XDG data to avoid changing player saves.
+- Added Android ARM64 preset with internet permission off; actual export attempt confirmed missing templates and Android SDK settings/tools. No external SDK downloads or device claims.
+- Retained provisional economy after simulation, with defects documented in ECONOMY.md rather than declaring final balance. The full 10k report is checked in.

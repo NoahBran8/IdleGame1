@@ -81,8 +81,8 @@ func _run() -> void:
 	check(Config.integer(9000000000000000, 0, Model.MAX_COINS), "64-bit currency supported")
 	check(not Config.integer(NAN, 0, Model.MAX_COINS), "nonfinite invalid")
 	for suffix: String in ["", ".bak", ".tmp"]:
-		if FileAccess.file_exists("user://garden.json" + suffix):
-			DirAccess.remove_absolute("user://garden.json" + suffix)
+		if FileAccess.file_exists("user://test-scene.json" + suffix):
+			DirAccess.remove_absolute("user://test-scene.json" + suffix)
 	var progression := Model.new()
 	progression.advance_to(1000)
 	check(not progression.buy_upgrade("plots", 1000), "upgrade keeps seed reserve in empty garden")
@@ -139,6 +139,35 @@ func _run() -> void:
 	check(persisted.store(capped), "offline result saved")
 	var reloaded := Model.new()
 	check(persisted.load_into(reloaded) and reloaded.advance_to(87400).income == 0, "restart cannot recredit offline income")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20261015
+	for trial: int in range(50):
+		var bulk := Model.new()
+		bulk.state.coins = 10000
+		bulk.state.xp = 200
+		bulk.advance_to(1000)
+		bulk.state.upgrades.stand = rng.randi_range(0, 1)
+		bulk.state.upgrades.helper = rng.randi_range(0, 1)
+		bulk.state.upgrades.signage = rng.randi_range(0, 3) if bulk.state.upgrades.stand else 0
+		var species: Array = bulk.config.plants.keys()
+		for index: int in range(4):
+			bulk.plant(index, species[rng.randi_range(0, 4)], 1000)
+		var stepped := Model.new()
+		stepped.state = bulk.state.duplicate(true)
+		bulk.advance_to(4600)
+		for time: int in range(1013, 4600, 13):
+			stepped.advance_to(time)
+		stepped.advance_to(4600)
+		check(bulk.state == stepped.state, "offline equals incremental progress (randomized trial %d)" % trial)
+	var extremes := Model.new()
+	check(not extremes.plant(0, "carrot", -1) and extremes.state.coins == 20, "invalid planting clock cannot debit")
+	extremes.advance_to(-1)
+	check(extremes.state.last_update == 0, "negative initial clock ignored")
+	extremes.advance_to(Model.MAX_COINS)
+	check(extremes.state.last_update == 0, "unrepresentable initial clock ignored")
+	extremes.plant(0, "carrot", 1000)
+	extremes.state.inventory.carrot = Model.MAX_COINS
+	check(not extremes.harvest(0, 1008) and not extremes.state.plots[0].is_empty(), "full inventory preserves mature crop")
 	var goals := Model.new()
 	check(not goals.claim_quest("first_harvest"), "incomplete quest rejected")
 	goals.plant(0, "carrot", 1000)
@@ -190,6 +219,8 @@ func _run() -> void:
 	check(not Config.new("user://nonexistent-config").error.is_empty(), "missing config fails explicitly")
 	var scene: PackedScene = load("res://scenes/garden/garden.tscn")
 	var garden: Control = scene.instantiate()
+	garden.save_path = "user://test-scene.json"
+	garden.telemetry_path = "user://test-scene-events.jsonl"
 	root.add_child(garden)
 	await process_frame
 	check(garden.board.plots.size() == 16, "garden scene mounts sixteen plots")
@@ -217,6 +248,9 @@ func _run() -> void:
 	garden.audio.stop()
 	garden._feedback(660.0)
 	check(not garden.audio.playing, "mute blocks sound")
+	garden.audio.stop()
+	garden.audio.stream = null
+	await create_timer(0.2).timeout
 	garden.queue_free()
 	await process_frame
 	print("RESULT: %d checks, %d failures" % [checks, failures])

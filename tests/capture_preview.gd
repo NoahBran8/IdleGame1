@@ -6,6 +6,8 @@ func _initialize() -> void:
 func _capture() -> void:
 	var scene: PackedScene = load("res://scenes/garden/garden.tscn")
 	var garden: Control = scene.instantiate()
+	garden.save_path = "user://preview-garden.json"
+	garden.telemetry_path = "user://preview-events.jsonl"
 	root.add_child(garden)
 	root.size = Vector2i(540, 960)
 	root.content_scale_size = Vector2i(540, 960)
@@ -22,6 +24,7 @@ func _capture() -> void:
 	garden.model.state.xp = 200
 	garden.model.state.plots_unlocked = 16
 	garden.model.state.upgrades.plots = 12
+	garden.model.state.upgrades.stand = 1
 	garden.model.state.onboarding = 4
 	var species: Array = garden.model.config.plants.keys()
 	for i: int in range(10):

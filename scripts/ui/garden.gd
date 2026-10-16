@@ -5,6 +5,8 @@ const Save = preload("res://scripts/services/save_service.gd")
 const Analytics = preload("res://scripts/services/analytics_service.gd")
 const Audio = preload("res://scripts/services/audio_service.gd")
 const Board = preload("res://scripts/ui/garden_board.gd")
+var save_path: String = "user://garden.json"
+var telemetry_path: String = "user://events.jsonl"
 var model: GardenModel
 var saves: GardenSave
 var selected: String = "carrot"
@@ -22,6 +24,7 @@ var tab_buttons: Dictionary = {}
 var analytics: GardenAnalytics
 var audio: AudioStreamPlayer
 var last_tutorial: int = 0
+var safe_margin: MarginContainer
 
 func _ready() -> void:
 	model = Model.new()
@@ -30,9 +33,9 @@ func _ready() -> void:
 		failure.text = model.config.error
 		add_child(failure)
 		return
-	saves = Save.new()
+	saves = Save.new(save_path)
 	saves.load_into(model)
-	analytics = Analytics.new()
+	analytics = Analytics.new(telemetry_path)
 	analytics.enabled = model.state.settings.local_telemetry
 	last_tutorial = int(model.state.onboarding)
 	audio = AudioStreamPlayer.new()
@@ -126,6 +129,7 @@ func _build() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(scroll)
 	var margin := MarginContainer.new()
+	safe_margin = margin
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for side: String in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 22)
@@ -162,12 +166,20 @@ func _build() -> void:
 			_refresh_panel()
 		)
 		button.add_theme_font_size_override("font_size", 14)
+		button.toggle_mode = true
+		for state_name: String in ["normal", "hover", "pressed", "focus"]:
+			var compact_style: StyleBox = theme.get_stylebox(state_name, "Button").duplicate()
+			compact_style.content_margin_left = 5
+			compact_style.content_margin_right = 5
+			button.add_theme_stylebox_override(state_name, compact_style)
 		tab_buttons[tab] = button
 	panel = VBoxContainer.new()
 	panel.add_theme_constant_override("separation", 9)
 	ui_root.add_child(panel)
 	_label(ui_root, "Grows at your pace · Saved on this device", 12, Color("#8fa68e"))
 	apply_settings()
+	get_viewport().size_changed.connect(_apply_safe_area)
+	_apply_safe_area()
 
 func _label(parent: Node, text: String, font_size: int = 17, color: Color = Color("#e9ecdc")) -> Label:
 	var label := Label.new()
@@ -245,7 +257,7 @@ func _refresh_panel() -> void:
 		panel.remove_child(child)
 		child.queue_free()
 	for tab: String in tab_buttons:
-		tab_buttons[tab].text = ("• " if tab == active_tab else "") + tab
+		tab_buttons[tab].set_pressed_no_signal(tab == active_tab)
 	match active_tab:
 		"Seeds":
 			_label(panel, "CHOOSE WHAT GROWS NEXT", 13, Color("#bac99d"))
@@ -291,7 +303,7 @@ func _refresh_panel() -> void:
 		"Shop":
 			_label(panel, "INVEST IN YOUR GARDEN", 13, Color("#bac99d"))
 			_label(panel, "Stand: " + ("open · sells inventory every %ds" % model.stand_interval() if int(model.state.upgrades.stand) > 0 else "not yet built"), 15)
-			for id: String in model.config.upgrades:
+			for id: String in ["plots", "stand", "compost", "baskets", "irrigation", "helper", "signage", "soil"]:
 				var upgrade: Dictionary = model.config.upgrades[id]
 				var price: int = model.upgrade_price(id)
 				var text: String = "%s · %s" % [upgrade.name, "%d coins" % price if price > 0 else "MAX"]
@@ -299,6 +311,8 @@ func _refresh_panel() -> void:
 				var button := _button(panel, text, func() -> void: _request_upgrade(id))
 				button.disabled = not model.can_upgrade(id)
 				_label(panel, upgrade.description + " [Level %d]" % int(upgrade.level_required), 13, Color("#b8c7a5"))
+				if price > 0:
+					_label(panel, _effect_preview(id), 13, Color("#efcf87"))
 			_label(panel, "If your garden and inventory are empty, keep 5 coins for a seed.", 13)
 		"Journal":
 			_label(panel, "THE COLLECTION BOOK", 13, Color("#bac99d"))
@@ -363,14 +377,18 @@ func _request_upgrade(id: String) -> void:
 	confirm.dialog_text = "%d coins\n%s" % [price, model.config.upgrades[id].description]
 	confirm.ok_button_text = "Buy upgrade"
 	confirm.confirmed.connect(func() -> void:
-		_purchase(id)
+		_purchase(id, price)
 		confirm.queue_free()
 	)
 	confirm.canceled.connect(confirm.queue_free)
 	add_child(confirm)
 	confirm.popup_centered(Vector2i(mini(int(size.x) - 24, 430), 200))
 
-func _purchase(id: String) -> void:
+func _purchase(id: String, expected_price: int = -1) -> void:
+	if expected_price >= 0 and model.upgrade_price(id) != expected_price:
+		notice.text = "The upgrade price changed. Review its current price."
+		_refresh_panel()
+		return
 	model.advance_to(now())
 	if model.buy_upgrade(id, now()):
 		notice.text = model.config.upgrades[id].name + " purchased."
@@ -411,3 +429,42 @@ func _event(name: String, params: Dictionary = {}) -> void:
 	if int(model.state.onboarding) > last_tutorial:
 		last_tutorial = int(model.state.onboarding)
 		analytics.record("tutorial_step_completed", {"step": last_tutorial})
+
+func _effect_preview(id: String) -> String:
+	var preview := Model.new(model.config)
+	preview.state = model.state.duplicate(true)
+	preview.state.upgrades[id] = int(preview.state.upgrades[id]) + 1
+	match id:
+		"compost", "irrigation":
+			return "%s: %ds → %ds (whole seconds)" % [model.config.plants[selected].name, model.growth_seconds(selected), preview.growth_seconds(selected)]
+		"baskets":
+			return "%s sale: %d → %d coins" % [model.config.plants[selected].name, model.sell_value(selected), preview.sell_value(selected)]
+		"soil":
+			return "%s harvest: %d → %d XP" % [model.config.plants[selected].name, model.harvest_xp(selected), preview.harvest_xp(selected)]
+		"signage":
+			return "Sale interval: %ds → %ds" % [model.stand_interval(), preview.stand_interval()]
+		"plots":
+			return "Planting capacity: %d → %d" % [int(model.state.plots_unlocked), int(model.state.plots_unlocked) + 1]
+		"stand":
+			return "One inventory item sold every %ds; no free goods." % model.stand_interval()
+		"helper":
+			return "Ready plants harvested every 5s; no replanting."
+	return ""
+
+func _apply_safe_area() -> void:
+	if safe_margin == null or not (OS.has_feature("android") or OS.has_feature("ios")):
+		return
+	var physical: Vector2i = DisplayServer.screen_get_size()
+	var safe: Rect2i = DisplayServer.get_display_safe_area()
+	if physical.x <= 0 or physical.y <= 0 or safe.size.x <= 0 or safe.size.y <= 0:
+		return
+	var ratio: Vector2 = get_viewport_rect().size / Vector2(physical)
+	safe_margin.add_theme_constant_override("margin_left", maxi(22, int(safe.position.x * ratio.x)))
+	safe_margin.add_theme_constant_override("margin_right", maxi(22, int((physical.x - safe.end.x) * ratio.x)))
+	safe_margin.add_theme_constant_override("margin_top", maxi(22, int(safe.position.y * ratio.y)))
+	safe_margin.add_theme_constant_override("margin_bottom", maxi(22, int((physical.y - safe.end.y) * ratio.y)))
+
+func _exit_tree() -> void:
+	if audio != null:
+		audio.stop()
+		audio.stream = null

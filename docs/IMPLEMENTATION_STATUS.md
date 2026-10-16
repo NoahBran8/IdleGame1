@@ -1,14 +1,28 @@
 # Implementation status
-## M0
-Scaffold committed; Godot 4.6.3 imports project. Initial attempt could not write default user directories; use writable XDG paths in this sandbox. Editor debugger sockets are blocked by sandbox; headless runtime works.
-## M1
-Plant → three growth stages → harvest → inventory → sell-one/all; five configured species with level gates; 4/16 plots open; original isometric procedural art; mouse/touch button input; local atomic saves with previous-save backup, corruption recovery notice and blocked overwrite if both files invalid. Monotonic session clock. Settings persisted.
-Verification: 37 automated checks passed, including mounted garden scene. Headless smoke passed after redirecting writable user-data paths. Visual rendering/device checks pending.
-## Remaining
-M2 upgrades, stand, capped offline progression; M3 collection, quests, sound, accessibility polish; M4 simulations, performance and Android QA; M5 user testing. No claim of device or product validation.
 
-## M2
-Implemented eight upgrades, expansion to 16 plots, XP levels, stand, harvest helper, chronological offline processing capped to 8 hours, persisted reconciliation cursor, and v1→v2 save migration. Expensive upgrades use purchase confirmation and all show effect/cost/level. 64 automated checks pass, including repeated resume/reload, backward clocks, 8h cap, upgrade prerequisites/caps and inventory-backed offline sales.
+## Verified playable scope
+Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially open), five plants with three timed growth stages, planting/harvesting, inventory sell-one/all, integer coin wallet, XP/level gates, eight upgrades, stocked flower stand, later harvest helper, eight-hour offline growth/sales cap, local saves/backups/migrations, collection, five permanent quests, contextual onboarding, generated sound/mute, reduced motion, large text, high contrast, local-only telemetry and debug-gated balance control.
 
-## M3
-Implemented collection book, five permanent claimable quests, contextual onboarding, procedural sound/mute, reduced-motion action feedback, high contrast, larger text, local telemetry adapter and debug-only balance button. 87 checks pass (quest idempotency, migrations, privacy parameter allowlist, generated sound, mute and UI settings included). Actual desktop rendering captured with a virtual Xorg display and software OpenGL. Narrow-screen preview exposed navigation wrapping; fixed with a two-row grid. Still needs real-device safe-area, 44dp touch, sound, haptics, contrast audit and usability review before M3 acceptance.
+## Milestone acceptance
+| Milestone | Status | Evidence / limit |
+| --- | --- | --- |
+| M0 | Implemented | Empty repository inspected; bootable Godot scaffold; required docs created; exact engine version recorded. |
+| M1 | Implemented, desktop verified | Real pointer planting → 8s growth → harvest → inventory sale → reload; atomic temp/rename saves and previous backup; tested corruption recovery. |
+| M2 | Implemented, desktop verified | Eight upgrades; XP; stand/helper; chronological capped offline processing; persisted cursor; 50 bulk-vs-incremental equivalence trials. |
+| M3 | Features implemented; mobile acceptance pending | Collection, five quests, tutorial hints, sound and accessibility settings, telemetry adapter. Real Godot renders inspected at 540px/320px. Hardware audio/haptics, touch, safe areas, contrast audit and usability still pending. |
+| M4 | Partial | 141 automated checks and 11 rendered interaction checks pass. 10k synthetic players pass invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
+| M5 | Not started | No independent testers or retention results. No ads/IAP. |
+
+## Material limitations
+- Simulation exposes over-fast late progression, rising XP levels without extra content, and convergent profit-optimal plant choices. Initial tuning is not launch-ready. Stand unlock time depends heavily on investment order.
+- Offline automation sells existing stock and harvests planted crops only. It intentionally stops producing income when stock/crops run out; no automatic planting.
+- Collection records standard variety discovery. Variant breeding and extra businesses are later scope per the supplied specification.
+- Services are explicitly injected and UI panels built programmatically, rather than global autoloads and individual panel scenes. No main menu/pause overlay; the game starts directly in the garden, as a vertical slice.
+- Save recovery preserves damaged files and pauses writes if neither primary nor backup validates. No cloud sync. Remote analytics, accounts, multiplayer, ads and purchases absent.
+- Physical-device accessibility, safe areas, 44dp plot touch targets, Android lifecycle/performance and release export acceptance remain.
+- Release and trademark/licensing clearance are not asserted.
+
+## Files and continuation
+Core rules: scripts/domain/{config,game_model}.gd. Adapters: scripts/services/{save_service,analytics_service,audio_service}.gd. Rendering/UI: scripts/ui/{garden,garden_board,plot}.gd and scenes/garden/garden.tscn. Tuning: data/*.json. Verification: tests/*.gd and tools/verify.sh. Android: export_presets.cfg and docs/ANDROID.md.
+
+Run tools/verify.sh, then follow CONTINUE.md and ANDROID.md. Keep each next change verifiable and preserve local player saves. All screenshots are actual engine captures; demo images use labelled test fixtures.
