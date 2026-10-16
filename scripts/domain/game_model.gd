@@ -3,7 +3,7 @@ extends RefCounted
 
 const Config = preload("res://scripts/domain/config.gd")
 const Requests = preload("res://scripts/domain/request_rules.gd")
-const SAVE_VERSION: int = 4
+const SAVE_VERSION: int = 5
 const MAX_COINS: int = 9000000000000000
 var config: GardenConfig
 var state: Dictionary
@@ -22,7 +22,7 @@ func fresh() -> Dictionary:
 	var upgrades: Dictionary = {}
 	for id: String in config.upgrades:
 		upgrades[id] = 0
-	return {"version": SAVE_VERSION, "orders": initial_orders(1), "next_order_uid": 4, "orders_completed": 0, "pinned_order": 0, "claimed_quests": [], "onboarding": 0, "upgrades": upgrades, "last_update": 0, "stand_at": 0, "helper_at": 0, "coins": int(config.economy.get("starting_coins", 20)),
+	return {"version": SAVE_VERSION, "decor": "meadow", "orders": initial_orders(1), "next_order_uid": 4, "orders_completed": 0, "pinned_order": 0, "claimed_quests": [], "onboarding": 0, "upgrades": upgrades, "last_update": 0, "stand_at": 0, "helper_at": 0, "coins": int(config.economy.get("starting_coins", 20)),
 		"xp": 0, "plots_unlocked": 4, "plots": plots, "inventory": inventory,
 		"discovered": [], "harvests": 0, "sales": 0, "saved_at": 0,
 		"settings": {"reduced_motion": false, "high_contrast": false, "large_text": false, "sound": true, "local_telemetry": true}}
@@ -90,6 +90,8 @@ func sell_all() -> int:
 
 func validate(candidate: Variant) -> bool:
 	if not candidate is Dictionary or candidate.get("version") != SAVE_VERSION:
+		return false
+	if not candidate.get("decor") in ["meadow", "wildflowers", "stone"]:
 		return false
 	for field: String in ["coins", "xp", "harvests", "sales", "saved_at", "last_update", "stand_at", "helper_at"]:
 		if not Config.integer(candidate.get(field), 0, MAX_COINS):
@@ -312,7 +314,7 @@ func migrate(candidate: Variant) -> Variant:
 			candidate.settings.local_telemetry = true
 	if candidate.get("version") == 3:
 		candidate = candidate.duplicate(true)
-		candidate.version = SAVE_VERSION
+		candidate.version = 4
 		if Config.integer(candidate.get("xp"), 0, MAX_COINS):
 			candidate.orders = initial_orders(1 + int(candidate.xp) / int(config.economy.xp_per_level))
 		else:
@@ -320,6 +322,10 @@ func migrate(candidate: Variant) -> Variant:
 		candidate.next_order_uid = 4
 		candidate.orders_completed = 0
 		candidate.pinned_order = 0
+	if candidate.get("version") == 4:
+		candidate = candidate.duplicate(true)
+		candidate.version = SAVE_VERSION
+		candidate.decor = "meadow"
 	return candidate
 
 func quest_progress(id: String) -> int:

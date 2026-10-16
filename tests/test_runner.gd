@@ -226,7 +226,7 @@ func _run() -> void:
 	garden.model.state.settings.sound = false
 	await process_frame
 	check(garden.board.plots.size() == 16, "garden scene mounts sixteen plots")
-	check(garden.hud.text.contains("coins"), "HUD mounted")
+	check(garden.hud.text == "20", "HUD mounted")
 	garden._on_plot(0)
 	check(garden.model.state.plots[0].size() > 0, "scene planting handler")
 	garden.active_tab = "Inventory"
@@ -241,8 +241,9 @@ func _run() -> void:
 	garden.model.state.settings.large_text = true
 	garden.apply_settings()
 	check(garden.hud.get_theme_font_size("font_size") > before_font, "large text scales HUD")
+	var scaled_font: int = garden.hud.get_theme_font_size("font_size")
 	garden.apply_settings()
-	check(garden.hud.get_theme_font_size("font_size") == 24, "text scaling is idempotent")
+	check(garden.hud.get_theme_font_size("font_size") == scaled_font, "text scaling is idempotent")
 	garden.model.state.settings.reduced_motion = true
 	garden.model.state.settings.sound = false
 	garden.audio.stop()

@@ -61,6 +61,8 @@ func _run() -> void:
 	check(garden.model.state.coins == 24 and garden.model.state.inventory.carrot == 0, "real inventory sale button credits coins")
 	var restored := Model.new()
 	check(Save.new("user://pointer-test-scene.json").load_into(restored) and restored.state.coins == 24, "full pointer loop persists on restart")
+	await click(garden.close_button)
+	check(not garden.modal_layer.visible, "inventory closes to garden")
 	await click(garden.plant_all_button)
 	check(garden.model.state.coins == 4, "batch plant via real pointer charges four seeds")
 	await create_timer(8.1).timeout
@@ -69,15 +71,21 @@ func _run() -> void:
 	await click(garden.tab_buttons.Requests)
 	await click(garden.request_buttons[1].pin)
 	check(garden.model.state.pinned_order == 1, "real pin button reserves request")
+	await click(garden.close_button)
+	check(not garden.modal_layer.visible, "requests close to garden")
 	await click(garden.tab_buttons.Inventory)
 	await click(garden.panel.get_child(1))
 	check(garden.model.state.inventory.carrot == 3 and garden.model.state.coins == 13, "real sale button sells only surplus")
 	check(garden.panel.get_child(1).disabled, "reserved inventory sale button disabled")
+	await click(garden.close_button)
+	check(not garden.modal_layer.visible, "surplus inventory closes to garden")
 	await click(garden.tab_buttons.Requests)
 	await click(garden.request_buttons[1].deliver)
 	check(garden.model.state.orders_completed == 1 and garden.model.state.coins == 48, "real delivery button pays once")
 	check(garden.model.get_order(1).is_empty() and garden.model.state.pinned_order == 0, "completed request replaced with a new id")
 	check(Save.new("user://pointer-test-scene.json").load_into(restored) and restored.state.orders_completed == 1 and restored.state.coins == 48, "request completion survives restart")
+	await click(garden.close_button)
+	check(not garden.modal_layer.visible, "delivered request closes to garden")
 	root.size = Vector2i(320, 960)
 	root.content_scale_size = root.size
 	garden.model.state.settings.large_text = true
@@ -87,7 +95,7 @@ func _run() -> void:
 	for tab: String in garden.tab_buttons:
 		var button: Button = garden.tab_buttons[tab]
 		var text_width: float = button.get_theme_font("font").get_string_size(tab, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
-		check(button.size.x >= text_width + 10 and button.size.y >= 44 and button.size.y <= 60, "320px large-text navigation fits: " + tab)
+		check(button.size.x >= text_width + (2 if button.text.is_empty() else 10) and button.size.y >= 44 and button.size.y <= 60, "320px large-text navigation fits: " + tab)
 	garden.model.state.settings.sound = true
 	garden._feedback(660.0)
 	check(garden.audio.playing, "rendered feedback sends generated audio to player")

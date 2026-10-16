@@ -33,3 +33,17 @@ No continuously animated world or per-frame simulation. Static vector scenery re
 
 ## Results
 Pending implementation. No redesign completion claimed at milestone A.
+
+## B/C — functional shell and compatibility verification
+Implemented fixed HUD, expanding clipped world, side rail, horizontally scrolling seed/building/decor cards and dismissible feature overlays. All 16 plot controls and three illustrated buildings are independent controls with visible hit targets. Original SVG icons and native vector scenery replace the old stacked presentation. All eight upgrades, inventory actions, requests/reservations, five quests, collection and settings remain available.
+
+Schema 5 adds only decor. Tests compare every v4 gameplay/settings field through direct migration and real JSON loading; decor saves/reloads. Coin/XP/upgrades produce bounded transient labels; reduced motion uses static labels. Palette text contrast tests pass. No prices or progression rules were retuned.
+
+Evidence at this checkpoint:
+- Original 140 core + 104 request checks pass.
+- 378 redesign checks pass across 320×568, 320×640, 360×720, 540×960 and 600×1000, normal and large text; primary controls/buildings/plot bounds and modal close controls stay in view.
+- Updated original rendered smoke: 25 checks pass, including real growth waits, overlay closing, sales and delivery.
+- Dedicated rendered redesign smoke: 50 checks pass, including every plot at 320px, building routing, quest reward, decor and complete scene restart.
+- Actual screenshots inspected. Scenery initially painted above the world; clipped the world to keep HUD/selector unobscured. High-contrast empty/locked symbols corrected for dark soil.
+
+D remains in progress: isolated rendering timing, final screenshots/documentation and publication. Physical Android touch/dp, safe areas, hardware performance and formal accessibility audit remain pending.
