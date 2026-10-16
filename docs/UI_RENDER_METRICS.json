@@ -1,0 +1,11 @@
+{
+  "android_validated": false,
+  "engine": "4.6.3-stable (official)",
+  "environment": "Xorg virtual display + Mesa llvmpipe software renderer",
+  "frames": 180,
+  "median_frame_ms": 33.25,
+  "notes": "Desktop frame timing sample with 16 grown plants. Not a device FPS/battery claim.",
+  "p95_frame_ms": 522.84,
+  "scene_nodes": 86,
+  "viewport": "320x640"
+}

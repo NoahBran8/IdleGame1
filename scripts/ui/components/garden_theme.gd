@@ -30,6 +30,8 @@ static func make() -> Theme:
 		theme.set_color("font_pressed_color", control, INK)
 		theme.set_color("font_focus_color", control, INK)
 		theme.set_color("font_disabled_color", control, Color("#60715b"))
+	for control: String in ["PanelContainer","PopupPanel","AcceptDialog"]:
+		theme.set_stylebox("panel",control,box())
 	theme.set_stylebox("normal", "Button", box())
 	theme.set_stylebox("hover", "Button", box(Color("#edf2ce"), Color("#78975b")))
 	theme.set_stylebox("pressed", "Button", box(Color("#dce9b6"), Color("#658644")))

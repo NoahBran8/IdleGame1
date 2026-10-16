@@ -10,7 +10,7 @@ Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially 
 | M1 | Implemented, desktop verified | Real pointer planting → 8s growth → harvest → inventory sale → reload; atomic temp/rename saves and previous backup; tested corruption recovery. |
 | M2 | Implemented, desktop verified | Eight upgrades; XP; stand/helper; chronological capped offline processing; persisted cursor; 50 bulk-vs-incremental equivalence trials. |
 | M3 | Features implemented; mobile acceptance pending | Collection, five quests, tutorial hints, sound and accessibility settings, telemetry adapter. Real Godot renders inspected at 540px/320px. Hardware audio/haptics, touch, safe areas, contrast audit and usability still pending. |
-| M4 | Partial | 244 automated checks and 21 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
+| M4 | Partial | 627 automated checks and 95 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
 | M5 | Not started | No independent testers or retention results. No ads/IAP. |
 
 ## Material limitations
@@ -33,3 +33,12 @@ Existing v3 player saves migrate to v4 without altering earned coins, XP, crops,
 Batch planting honours the last displayed quantity and affordability; batch harvest collects mature plants only. No base plant prices, growth times or XP curve changed. Added local order events; no remote analytics.
 
 Verified 0.4 evidence: 244 core/feature checks; 21 actual GUI pointer checks through planting, real growth, batch harvest, pin, surplus sale, delivery and restart; 1,000 request-focused synthetic players with no failed state/reservation/payout invariants. Captured actual start/demo/request-board/320px screenshots. This does not finish Android or independent usability acceptance.
+
+## 0.5 redesign
+Audit/architecture/asset strategy and milestone evidence: UI_REDESIGN.md. Fixed HUD and bottom selector surround an expanding independently interactive garden. Inventory, all upgrades, requests, quests, collection and settings remain in overlays with fixed close controls. Cottage, stand and tools are actual visible controls. Plant artwork and soil both accept accurate pointer input. Three free decor looks persist through schema 5, which migrates schemas 1–4 while preserving every existing player field.
+
+New reusable components live in scripts/ui/components/: palette/theme, selector card, game shell, world building, feedback layer, purchase confirmation. Native SVG source in assets/ui/ is original; no reference image or external asset pack is used.
+
+Current verification: 140 core + 104 request + 383 redesign checks; 25 original rendered workflow checks and 70 redesign pointer checks, including every plot at 320px, plant pixel hits, real quest collection, purchase cancellation/confirmation and whole-scene restart. All pass. Existing economic simulations remain historical 0.3/0.4 evidence; no economy retune was made.
+
+Desktop layout coverage includes 320×568, 320×640, 360×720, 540×960 and 600×1000, normal/large text. Palette text contrast checks pass; this is not a full accessibility certification. Virtual software-renderer frame timings vary and include substantial spikes. The real-device 30fps target, hardware touch, safe areas and battery/thermal acceptance remain unfinished. Do not mark M4 complete.

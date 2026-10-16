@@ -2,6 +2,7 @@ extends Button
 
 var kind: String = "home"
 var built: bool = true
+var large_text: bool = false
 
 func _ready() -> void:
 	flat = true
@@ -44,9 +45,10 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO)
 	var caption: String = {"home":"Home", "stand":"Stand" if built else "Build", "well":"Tools"}[kind]
 	var font: Font = ThemeDB.fallback_font
-	var width: float = font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,11).x
+	var font_size: int = 13 if large_text else 11
+	var width: float = font.get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x
 	draw_style_box(_box(Color("#fff7dc")),Rect2((size.x-width)*0.5-4,size.y-15,width+8,16))
-	draw_string(font,Vector2((size.x-width)*0.5,size.y-3),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,11,Color("#344f37"))
+	draw_string(font,Vector2((size.x-width)*0.5,size.y-3),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,Color("#344f37"))
 
 func _ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
 	var points := PackedVector2Array()

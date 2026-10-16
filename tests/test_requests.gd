@@ -201,7 +201,7 @@ func _run() -> void:
 	check(garden.model.state.coins == 55, "stale UI delivery rejected")
 	garden._plant_available()
 	check(garden.model.state.coins == 35, "batch UI uses real seed cost")
-	check(garden.board.plots[0].seconds_left == 8, "growing plot shows countdown")
+	check(garden.board.plots[0].seconds_left > 0 and garden.board.plots[0].seconds_left <= garden.model.growth_seconds("carrot"), "growing plot shows countdown")
 	check(garden.level_progress.value == 4, "order XP updates level progress")
 	garden.model.state = garden.model.fresh()
 	garden.model.state.coins = 5

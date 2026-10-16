@@ -1,5 +1,6 @@
 extends Control
 
+const PurchaseConfirm = preload("res://scripts/ui/components/purchase_confirm.gd")
 const Shell = preload("res://scripts/ui/components/garden_shell.gd")
 const Design = preload("res://scripts/ui/components/garden_theme.gd")
 const SelectorCard = preload("res://scripts/ui/components/selector_card.gd")
@@ -9,6 +10,11 @@ const Save = preload("res://scripts/services/save_service.gd")
 const Analytics = preload("res://scripts/services/analytics_service.gd")
 const Audio = preload("res://scripts/services/audio_service.gd")
 const Board = preload("res://scripts/ui/garden_board.gd")
+var status_banner: PanelContainer
+var dock_scroll: ScrollContainer
+var notice_cached: String = ""
+var notice_deadline: int = 0
+var purchase_dialog: Control
 var level_label: Label
 var modal_layer: Control
 var modal_title: Label
@@ -85,6 +91,7 @@ func now() -> int:
 func _process(_delta: float) -> void:
 	if model == null or hud == null:
 		return
+	_update_notice()
 	if now() != last_second:
 		last_second = now()
 		var progress: Dictionary = model.advance_to(last_second)
@@ -163,7 +170,7 @@ func _refresh() -> void:
 	_show_state_feedback()
 	level_progress.value = int(model.state.xp) % int(model.config.economy.xp_per_level)
 	level_progress.tooltip_text = "%d / %d XP to level %d" % [int(level_progress.value), int(level_progress.max_value), model.level() + 1]
-	unlock_hint.text = "%d XP to next level" % int(level_progress.max_value - level_progress.value)
+	unlock_hint.text = "%d XP to next level" % int(level_progress.max_value - level_progress.value) if get_viewport_rect().size.x >= 400 else "%d XP" % int(level_progress.max_value - level_progress.value)
 	unlock_hint.tooltip_text = level_progress.tooltip_text
 	for id: String in model.config.plants:
 		if int(model.config.plants[id].level_required) > model.level():
@@ -232,7 +239,7 @@ func _refresh_panel() -> void:
 		panel.remove_child(child)
 		child.queue_free()
 	for tab: String in tab_buttons:
-		tab_buttons[tab].set_pressed_no_signal(tab == active_tab)
+		tab_buttons[tab].set_pressed_no_signal(tab == active_tab and modal_layer.visible)
 	match active_tab:
 		"Seeds":
 			_label(panel, "CHOOSE WHAT GROWS NEXT", 13, Color("#bac99d"))
@@ -292,13 +299,14 @@ func _refresh_panel() -> void:
 				var text: String = "%s · %s" % [upgrade.name, "%d coins" % price if price > 0 else "MAX"]
 				text += " · %d/%d" % [int(model.state.upgrades[id]), int(upgrade.max_level)]
 				var button := _button(panel, text, func() -> void: _request_upgrade(id))
+				button.set_meta("upgrade_id", id)
 				button.disabled = not model.can_upgrade(id)
 				_label(panel, upgrade.description + " [Level %d]" % int(upgrade.level_required), 13, Color("#b8c7a5"))
 				if price > 0:
 					_label(panel, _effect_preview(id), 13, Color("#efcf87"))
 			_label(panel, "If your garden and inventory are empty, keep 5 coins for a seed.", 13)
 		"Journal":
-			_label(panel, "THE COLLECTION BOOK", 13, Color("#bac99d"))
+			_label(panel, "COLLECTION · %s total XP" % Model.compact(int(model.state.xp)), 13, Color("#bac99d"))
 			for id: String in model.config.plants:
 				var discovered: bool = id in model.state.discovered
 				_label(panel, "%s · %s" % [model.config.plants[id].name, "Discovered · standard variety" if discovered else "Not harvested yet · level %d" % int(model.config.plants[id].level_required)], 16)
@@ -359,17 +367,24 @@ func _request_upgrade(id: String) -> void:
 	if price < 100:
 		_purchase(id)
 		return
-	var confirm := ConfirmationDialog.new()
+	if is_instance_valid(purchase_dialog):
+		return
+	var confirm := PurchaseConfirm.new()
 	confirm.title = model.config.upgrades[id].name
-	confirm.dialog_text = "%d coins\n%s" % [price, model.config.upgrades[id].description]
-	confirm.ok_button_text = "Buy upgrade"
+	confirm.description = model.config.upgrades[id].description + "\n" + _effect_preview(id)
+	confirm.price = price
 	confirm.confirmed.connect(func() -> void:
-		_purchase(id, price)
+		_purchase(id,price)
 		confirm.queue_free()
+		purchase_dialog = null
 	)
-	confirm.canceled.connect(confirm.queue_free)
+	confirm.canceled.connect(func() -> void:
+		confirm.queue_free()
+		purchase_dialog = null
+	)
 	add_child(confirm)
-	confirm.popup_centered(Vector2i(mini(int(size.x) - 24, 430), 200))
+	purchase_dialog = confirm
+	_scale_text(confirm,1.2 if model.state.settings.large_text else 1.0)
 
 func _purchase(id: String, expected_price: int = -1) -> void:
 	if expected_price >= 0 and model.upgrade_price(id) != expected_price:
@@ -534,6 +549,8 @@ func _open_panel(tab: String) -> void:
 
 func _close_panel() -> void:
 	modal_layer.visible = false
+	for key: String in ["Inventory","Requests","Journal","Settings"]:
+		tab_buttons[key].set_pressed_no_signal(false)
 	board.grab_focus()
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -582,6 +599,8 @@ func _refresh_dock() -> void:
 			)
 			card.set_pressed_no_signal(model.state.decor == id)
 
+	_arrange_dock()
+
 func _selector_card(id: String, title: String, caption: String, icon: String, action: Callable) -> Button:
 	var card := SelectorCard.new()
 	card.title = title
@@ -607,3 +626,23 @@ func _show_state_feedback() -> void:
 		if upgrades > int(visual_snapshot.upgrades):
 			feedback.show_gain("Garden upgraded!", board.global_position + board.size * Vector2(0.2,0.45), Design.INK, reduced)
 	visual_snapshot = {"coins":int(model.state.coins), "xp":int(model.state.xp), "upgrades":upgrades}
+
+func _arrange_dock() -> void:
+	if dock_scroll == null:
+		return
+	var compact: bool = get_viewport_rect().size.y < 720
+	dock_scroll.custom_minimum_size.y = 83 if compact else 103
+	for card: Control in selector.get_children():
+		card.custom_minimum_size.y = 72 if compact else 92
+		card.queue_redraw()
+	for control: Control in [plant_all_button,harvest_all_button,dock_tabs.Seeds,dock_tabs.Buildings,dock_tabs.Decor]:
+		control.custom_minimum_size.y = 44 if compact else 48
+
+func _update_notice() -> void:
+	if notice.text != notice_cached:
+		notice_cached = notice.text
+		notice_deadline = Time.get_ticks_msec()+5000
+		notice.visible = not notice.text.is_empty()
+		status_banner.offset_top = -28 if notice.text.is_empty() else -50
+	elif not notice.text.is_empty() and Time.get_ticks_msec() > notice_deadline and saves.message.is_empty():
+		notice.text = ""

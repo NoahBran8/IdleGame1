@@ -1,5 +1,17 @@
 extends Button
 
+const PLANT_ART: Dictionary = {
+	"carrot": preload("res://assets/ui/carrot.svg"),
+	"sunflower": preload("res://assets/ui/sunflower.svg"),
+	"rose": preload("res://assets/ui/rose.svg"),
+	"lavender": preload("res://assets/ui/lavender.svg"),
+	"orchid": preload("res://assets/ui/orchid.svg")
+}
+
+const ART_PADDING: float = 30.0
+static var alpha_masks: Dictionary = {}
+
+var text_scale: float = 1.0
 var species: String = ""
 var stage: int = -1
 var locked: bool = false
@@ -13,8 +25,9 @@ func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 func _draw() -> void:
-	var center := size * 0.5
-	var half := Vector2(size.x * 0.48, size.y * 0.42)
+	var tile_size := Vector2(size.x,size.y-ART_PADDING)
+	var center := Vector2(size.x*0.5,ART_PADDING+tile_size.y*0.5)
+	var half := Vector2(tile_size.x * 0.48, tile_size.y * 0.42)
 	var diamond := PackedVector2Array([center + Vector2(-half.x, 0), center + Vector2(0, -half.y), center + Vector2(half.x, 0), center + Vector2(0, half.y)])
 	var bottom := diamond.duplicate()
 	for i: int in range(bottom.size()):
@@ -43,61 +56,55 @@ func _draw() -> void:
 		return
 	var base := center + Vector2(0, 1)
 	var tip := base + Vector2(0, -12 - stage * 6)
-	draw_line(base, tip, Color("#88b66e"), 3, true)
-	draw_colored_polygon(PackedVector2Array([tip + Vector2(0, 9), tip + Vector2(-15, 1), tip + Vector2(-12, 12)]), Color("#94c47a"))
-	draw_colored_polygon(PackedVector2Array([tip + Vector2(0, 12), tip + Vector2(14, 3), tip + Vector2(12, 14)]), Color("#5c9a60"))
+	if stage == 0:
+		draw_line(base, tip, Color("#88b66e"), 3, true)
+		draw_colored_polygon(PackedVector2Array([tip + Vector2(0, 9), tip + Vector2(-15, 1), tip + Vector2(-12, 12)]), Color("#94c47a"))
+		draw_colored_polygon(PackedVector2Array([tip + Vector2(0, 12), tip + Vector2(14, 3), tip + Vector2(12, 14)]), Color("#5c9a60"))
 	if stage > 0:
 		_flower(tip, base)
-	var text_position := center + Vector2(0, minf(23, size.y * 0.34))
+	var text_position := center + Vector2(0, minf(23, tile_size.y * 0.34))
 	if stage == 3:
 		_text("Ready", text_position, 11, Color("#382f20") if not contrast else Color("#fff1c6"))
 		draw_circle(center + Vector2(size.x * 0.27, -9), 3, Color("#fff1b3"))
 	else:
 		var countdown: String = "%ds" % seconds_left if seconds_left < 60 else "%d:%02d" % [seconds_left / 60, seconds_left % 60]
 		_text(countdown, text_position, 11, Color("#382f20") if not contrast else Color("#f4e5ba"))
-		var meter := Rect2(center + Vector2(-14, minf(26, size.y * 0.40)), Vector2(28, 3))
+		var meter := Rect2(center + Vector2(-14, minf(26, tile_size.y * 0.40)), Vector2(28, 3))
 		draw_rect(meter, Color("#332c23"))
 		draw_rect(Rect2(meter.position, Vector2(meter.size.x * progress, 3)), Color("#c6d59b"))
 
-func _flower(tip: Vector2, base: Vector2) -> void:
-	var scale_factor: float = 1.0 if stage == 3 else 0.75 if stage == 2 else 0.5
-	match species:
-		"carrot":
-			draw_colored_polygon(PackedVector2Array([base + Vector2(-7, -3), base + Vector2(7, -3), base + Vector2(0, 14 * scale_factor)]), Color("#f0a15d"))
-			draw_line(base + Vector2(-3, 2), base + Vector2(3, 3), Color("#bd683c"), 1, true)
-			for leaf: int in [-1, 0, 1]:
-				draw_line(base, base + Vector2(leaf * 9, -17 - (1 - absi(leaf)) * 7), Color("#b6cc79"), 3, true)
-		"sunflower":
-			for petal: int in range(9):
-				var angle: float = TAU * petal / 9.0
-				draw_circle(tip + Vector2(cos(angle), sin(angle)) * 9 * scale_factor, 5 * scale_factor, Color("#efce65"))
-			draw_circle(tip, 6 * scale_factor, Color("#705234"))
-			draw_circle(tip + Vector2(-2, -1) * scale_factor, 1.5 * scale_factor, Color("#aa8650"))
-		"rose":
-			for petal: int in range(6):
-				var angle: float = TAU * petal / 6.0
-				draw_circle(tip + Vector2(cos(angle), sin(angle)) * 6 * scale_factor, 6 * scale_factor, Color("#d97d8d"))
-			draw_circle(tip, 6 * scale_factor, Color("#f1b5b2"))
-			draw_arc(tip, 3 * scale_factor, 0.0, PI * 1.6, 12, Color("#b75d79"), 1.5, true)
-		"lavender":
-			for stem: int in [-1, 0, 1]:
-				var top := tip + Vector2(stem * 8, absi(stem) * 5)
-				draw_line(base, top, Color("#82a86a"), 2, true)
-				for bud: int in range(4):
-					draw_circle(top + Vector2((1 if bud % 2 == 0 else -1) * 2, bud * 4) * scale_factor, 3 * scale_factor, Color("#bca3e0") if bud % 2 else Color("#917bb5"))
-		"orchid":
-			for petal: int in range(5):
-				var angle: float = TAU * petal / 5.0 - PI * 0.5
-				var point := tip + Vector2(cos(angle) * 10, sin(angle) * 8) * scale_factor
-				draw_circle(point, 7 * scale_factor, Color("#e0bddb"))
-				draw_circle(point + Vector2(0, 1), 3 * scale_factor, Color("#c58bbb"))
-			draw_circle(tip + Vector2(0, 4) * scale_factor, 4 * scale_factor, Color("#f5d79a"))
+func _flower(_tip: Vector2, base: Vector2) -> void:
+	# Imported once and shared across the world/selector: one textured quad per plant.
+	var texture: Texture2D = PLANT_ART.get(species)
+	if texture == null:
+		return
+	var height: float = 21 + stage * 9
+	draw_texture_rect(texture, Rect2(base + Vector2(-height * 0.5, 10 - height),Vector2.ONE * height), false)
 
 func _text(value: String, point: Vector2, font_size: int, color: Color) -> void:
+	font_size = int(font_size * text_scale)
 	var font: Font = ThemeDB.fallback_font
 	var width: float = font.get_string_size(value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	draw_string(font, point - Vector2(width * 0.5, 0), value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
+func art_rect() -> Rect2:
+	var height: float = 21 + stage * 9
+	var center := Vector2(size.x*0.5,ART_PADDING+(size.y-ART_PADDING)*0.5)
+	return Rect2(center+Vector2(-height*0.5,11-height),Vector2.ONE*height)
+
 func _has_point(point: Vector2) -> bool:
-	var normalized: Vector2 = (point - size * 0.5) / (size * Vector2(0.5, 0.48))
-	return absf(normalized.x) + absf(normalized.y) <= 1.05
+	var tile_size := Vector2(size.x,size.y-ART_PADDING)
+	var center := Vector2(size.x*0.5,ART_PADDING+tile_size.y*0.5)
+	var normalized: Vector2 = (point-center)/(tile_size*Vector2(0.5,0.48))
+	if absf(normalized.x)+absf(normalized.y) <= 1.05:
+		return true
+	if locked or stage < 1 or not PLANT_ART.has(species):
+		return false
+	var rect: Rect2 = art_rect()
+	if not rect.has_point(point):
+		return false
+	if not alpha_masks.has(species):
+		alpha_masks[species] = PLANT_ART[species].get_image()
+	var mask: Image = alpha_masks[species]
+	var pixel: Vector2 = (point-rect.position)/rect.size*Vector2(mask.get_width(),mask.get_height())
+	return mask.get_pixel(clampi(int(pixel.x),0,mask.get_width()-1),clampi(int(pixel.y),0,mask.get_height()-1)).a > 0.1

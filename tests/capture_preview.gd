@@ -59,6 +59,11 @@ func _capture() -> void:
 	garden._refresh()
 	garden._refresh_dock()
 	await snapshot("garden-decor.png")
+	garden._open_panel("Shop")
+	garden._request_upgrade("signage")
+	await snapshot("garden-confirmation.png")
+	garden.purchase_dialog.canceled.emit()
+	garden._close_panel()
 	root.size = Vector2i(320,640)
 	root.content_scale_size = root.size
 	garden.model.state.settings.large_text = true

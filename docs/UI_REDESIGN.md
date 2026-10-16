@@ -32,7 +32,7 @@ D: real pointer workflow, every plot/feature access, 320/360/540/600 layouts, la
 No continuously animated world or per-frame simulation. Static vector scenery redraws on resize/decor change; plot state updates once per second. Bounded transient effects, no shader/post-processing dependencies. Essential controls at least 44 logical px; test narrow-screen layout and viewport containment. Physical dp, touch, device safe areas, battery/thermals and Android FPS require hardware.
 
 ## Results
-Pending implementation. No redesign completion claimed at milestone A.
+Milestone A recorded the proposal before implementation. Verified B/C/D results follow below; physical-device acceptance remains open.
 
 ## B/C — functional shell and compatibility verification
 Implemented fixed HUD, expanding clipped world, side rail, horizontally scrolling seed/building/decor cards and dismissible feature overlays. All 16 plot controls and three illustrated buildings are independent controls with visible hit targets. Original SVG icons and native vector scenery replace the old stacked presentation. All eight upgrades, inventory actions, requests/reservations, five quests, collection and settings remain available.
@@ -47,3 +47,22 @@ Evidence at this checkpoint:
 - Actual screenshots inspected. Scenery initially painted above the world; clipped the world to keep HUD/selector unobscured. High-contrast empty/locked symbols corrected for dark soil.
 
 D remains in progress: isolated rendering timing, final screenshots/documentation and publication. Physical Android touch/dp, safe areas, hardware performance and formal accessibility audit remain pending.
+
+## D — final desktop verification and outstanding acceptance
+Functional redesign verified on desktop:
+- 627 automated checks pass (140 core, 104 requests, 383 redesign).
+- 95 real-pointer checks pass (25 existing workflow and 70 redesign), including all plot soil and visible crop targets, buildings, journal reward, inventory/surplus sales, request reservation/delivery, in-app purchase cancel/confirm, decor and complete scene restart.
+- Each of three cosmetic looks is tested. No gameplay data field or economic rule was removed. Schema 5 adds only decor; schemas 1–4 migrate in sequence.
+- Actual 540px and 320px renders inspected, including large text, request/inventory overlays and confirmation. Short viewports use a smaller selector dock; essential controls stay in view. Ordinary notices expire after 5 seconds; save warnings persist and remain available in Settings.
+- A real pointer pass exposed native-popup input/styling fragility; confirmation is now an in-app component with tested cancel, cost display and single debit.
+- Plant drawing uses original shared SVG sprites and alpha-aware visible-pixel hits. This replaces many per-flower primitives while retaining each plant's independent stages and controls.
+
+Performance evidence and limits:
+UI_RENDER_BEFORE_SPRITES.json records an intermediate 180-frame software-renderer sample (median 57.14ms, p95 103.94ms). Subsequent sprite samples ranged from 27.78ms/p95 66.09ms to 50.37ms/p95 84.56ms; the last expanded interaction/confirmation run recorded median 33.25ms, p95 522.84ms, 86 nodes at 320×640. These virtual Xorg/Mesa llvmpipe wall timings vary substantially and contain large spikes. They do not establish a reliable speedup or meet a real-device 30fps acceptance gate. Latest raw sample is UI_RENDER_METRICS.json.
+
+Outstanding:
+- Midrange Android GPU/frame profiling and hitch investigation, battery/thermal/memory tests.
+- Physical touch targets in dp, hardware safe areas, audio/haptics and release export.
+- Formal contrast and screen-reader audit; geometry/palette tests are partial accessibility evidence.
+- Independent usability testing of the new layout and long-term economy tuning.
+No Android APK, stable device FPS, accessibility certification, user retention or App Market/store readiness is claimed.

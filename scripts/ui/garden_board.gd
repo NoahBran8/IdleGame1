@@ -49,8 +49,8 @@ func _arrange() -> void:
 	for index: int in range(16):
 		var row: int = index / 4
 		var col: int = index % 4
-		plots[index].size = Vector2(unit,tile_height)
-		plots[index].position = grid_origin + Vector2((col-row+3)*unit*0.5,(col+row)*tile_height*0.5)
+		plots[index].size = Vector2(unit,tile_height+30)
+		plots[index].position = grid_origin + Vector2((col-row+3)*unit*0.5,(col+row)*tile_height*0.5-30)
 	buildings.home.size = Vector2(building_height*1.12,building_height)
 	buildings.home.position = Vector2(8, maxf(0,top-building_height-9))
 	buildings.stand.size = Vector2(building_height*1.07,building_height)
@@ -65,6 +65,10 @@ func refresh(model: GardenModel, now: int, selected: String) -> void:
 	has_stand = int(model.state.upgrades.stand) > 0
 	has_irrigation = int(model.state.upgrades.irrigation) > 0
 	buildings.stand.built = has_stand
+	for object: Button in buildings.values():
+		if object.large_text != model.state.settings.large_text:
+			object.large_text = model.state.settings.large_text
+			object.queue_redraw()
 	if previous != [decor, has_stand, has_irrigation]:
 		queue_redraw()
 		buildings.stand.queue_redraw()
@@ -80,6 +84,7 @@ func refresh(model: GardenModel, now: int, selected: String) -> void:
 		tile.species = "" if model.state.plots[index].is_empty() else str(model.state.plots[index].species_id)
 		tile.focus_mode = Control.FOCUS_ALL
 		tile.contrast = model.state.settings.high_contrast
+		tile.text_scale = 1.15 if model.state.settings.large_text else 1.0
 		tile.highlight = index == 0 and int(model.state.harvests) == 0 and model.state.plots[index].is_empty()
 		var status: String = "Locked"
 		if not tile.locked:

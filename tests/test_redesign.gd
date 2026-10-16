@@ -120,6 +120,9 @@ func _run() -> void:
 			game._close_panel()
 	game.dock_mode = "Decor"
 	game._refresh_dock()
+	for look: String in ["meadow","wildflowers","stone"]:
+		game.selector_cards[look].pressed.emit()
+		check(game.model.state.decor == look and game.board.decor == look,"functional decor look: " + look)
 	game.selector_cards.wildflowers.pressed.emit()
 	check(game.model.state.decor == "wildflowers" and game.board.decor == "wildflowers", "decor changes world")
 	check(Save.new(game.save_path).load_into(reloaded) and reloaded.state.decor == "wildflowers","decor UI persists")
@@ -148,6 +151,19 @@ func _run() -> void:
 	check(game.feedback.active_count <= 6,"feedback effects bounded")
 	await create_timer(1.2).timeout
 	check(game.feedback.active_count == 0,"static feedback cleans up")
+	game.notice.text = "Ready to grow"
+	game._update_notice()
+	game.notice_deadline = Time.get_ticks_msec()-1
+	game._update_notice()
+	game._update_notice()
+	check(game.notice.text.is_empty() and not game.notice.visible,"ordinary notices expire without hiding controls")
+	game.saves.message = "Test recovery notice"
+	game.notice.text = game.saves.message
+	game._update_notice()
+	game.notice_deadline = Time.get_ticks_msec()-1
+	game._update_notice()
+	check(not game.notice.text.is_empty() and game.notice.visible,"save warnings remain visible")
+	game.saves.message = ""
 	game.queue_free()
 	await process_frame
 	print("REDESIGN: %d checks, %d failures" % [checks,failures])

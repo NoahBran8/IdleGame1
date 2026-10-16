@@ -16,13 +16,13 @@ func _ready() -> void:
 func _draw() -> void:
 	var font: Font = get_theme_font("font")
 	var font_size: int = get_theme_font_size("font_size")
-	var image_size: float = 26 if compact else 36
+	var image_size: float = 26 if compact else 26 if size.y < 88 else 36
 	if picture != null:
 		draw_texture_rect(picture, Rect2(Vector2((size.x - image_size) * 0.5, 6), Vector2.ONE * image_size), false, Color(1,1,1,0.55) if disabled else Color.WHITE)
 	var ink := Color("#294b39") if not disabled else Color("#60715b")
-	_text(title, size.y - 9 if compact else 61, font, font_size, ink)
+	_text(title, size.y - 9 if compact else size.y - 29, font, font_size, ink)
 	if not compact:
-		_text(caption, 81, font, maxi(11, font_size - 2), ink)
+		_text(caption, size.y - 10, font, maxi(11, font_size - 2), ink)
 
 func _text(value: String, y: float, font: Font, font_size: int, color: Color) -> void:
 	var width: float = font.get_string_size(value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

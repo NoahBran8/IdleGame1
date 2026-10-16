@@ -28,3 +28,12 @@
 - Original plant drawing now differentiates sunflower/rose/lavender/orchid/carrot, with fence/edging, countdowns, growth meters, XP meter and next unlock. No external artwork or dependencies.
 - Runtime verification now fails on script/runtime error output as well as exit status; Godot may otherwise return 0 on a script exception.
 - 0.4 request simulation is recorded separately from the historical 10k baseline so the methods are not conflated. No base economy retuning or retention claim.
+
+- 0.5 audit and architecture were committed before implementation (UI_REDESIGN.md). The redesign changes rendering/navigation, retaining the model's economic/time/request rules.
+- UI is fixed safe-area HUD/world/dock; feature panels use overlays. Side rail and world buildings are separate visible controls. No flattened reference-image hotspots.
+- Schema 5 adds only a free decor selection and chains prior migrations. App name/save directory unchanged. Full v4 field preservation tested through real JSON loading.
+- Plant SVGs are cached textured quads shared with selector cards; an alpha mask cached per species extends input to visible blossom pixels. Static scenery redraws on resize/look change, not a continuous animation loop.
+- Small viewports use compact dock cards; large text applies to UI and plot/building captions. Main text palette contrast tested; hardware/screen-reader audit still open.
+- Expensive upgrades retain cost/effect display, cancel and captured-price validation in a reusable in-app confirmation instead of a native popup.
+- Six transient labels maximum; reduced motion never starts label tweens. Ordinary notices expire, save warnings persist and are repeated in Settings.
+- Software renderer timing samples vary substantially (roughly 28–57ms medians across development runs, with large p95 spikes); do not claim a stable speedup or mobile performance acceptance.

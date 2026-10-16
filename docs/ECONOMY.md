@@ -43,3 +43,6 @@ Delivery coins = sum(quantity × current upgraded sale value) + configured bonus
 New synthetic evidence: REQUEST_SIMULATION_RESULTS.json, 1,000 request-focused runs, seed 20261016, visits every 20–90 seconds during one hour, then day-1/day-7 returns and a JSON save roundtrip. No failed invariants; 43,757 total deliveries, 1,608,220 total bonus coins. Median first delivery: 70s (range 20–171s). Median completed deliveries: 47 (range 11–62). Median final wallet: 1,356 coins. Zero wallet snapshots remain playable when stock/plants exist. These figures describe this synthetic policy, not an improvement in human retention or a matched comparison against the original four strategies.
 
 The original baseline results above remain historical 0.3 evidence. Existing long-term XP/content and ROI limitations are unresolved. Next balance work should compare request-focused and sale-focused policies under matched visit schedules, and test the noticeboard with independent players.
+
+## 0.5 interface redesign
+No plant/upgrade/request tuning or level curve changed. All three decor treatments are free visual selections; they neither credit nor debit currency or XP. Schema 5 adds only the look and preserves every previous field. Earlier synthetic economy reports remain historical evidence, not new 0.5 measurements.

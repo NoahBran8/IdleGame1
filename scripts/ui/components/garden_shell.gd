@@ -76,6 +76,7 @@ static func build(game: Control) -> void:
 		var key: String = entry[0]
 		var button := Card.new()
 		button.compact = true
+		button.toggle_mode = true
 		button.title = key
 		button.picture = load("res://assets/ui/" + str(entry[1]) + ".svg")
 		button.add_theme_font_size_override("font_size", 11)
@@ -99,6 +100,7 @@ static func build(game: Control) -> void:
 	banner_style.content_margin_right = 6
 	banner.add_theme_stylebox_override("panel", banner_style)
 	world.add_child(banner)
+	game.status_banner = banner
 	var message := VBoxContainer.new()
 	message.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	banner.add_child(message)
@@ -136,6 +138,7 @@ static func build(game: Control) -> void:
 	selector_scroll.custom_minimum_size.y = 103
 	selector_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	dock_body.add_child(selector_scroll)
+	game.dock_scroll = selector_scroll
 	game.selector = HBoxContainer.new()
 	game.selector.add_theme_constant_override("separation", 7)
 	selector_scroll.add_child(game.selector)
@@ -143,6 +146,7 @@ static func build(game: Control) -> void:
 	game._refresh_dock()
 	game.apply_settings()
 	game.get_viewport().size_changed.connect(game._apply_safe_area)
+	game.get_viewport().size_changed.connect(game._arrange_dock)
 	game._apply_safe_area()
 
 static func _modal(game: Control) -> void:
