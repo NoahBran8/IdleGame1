@@ -1,6 +1,6 @@
 # Garden Empire
 
-Version **0.7.0** · A playable, offline-first portrait gardening prototype built with **Godot 4.6.3 stable**. No external runtime dependencies, login, ads or purchases.
+Version **0.8.0** · A playable, offline-first portrait gardening prototype built with **Godot 4.6.3 stable**. No external runtime dependencies, login, ads or purchases.
 
 ![Godot gameplay preview — seeded demo fixture](docs/screenshots/garden-estate.png)
 
@@ -19,7 +19,15 @@ godot --path .
 7. Growth and stocked stand sales advance while away, capped at eight hours. Settings and progress save locally.
 
 ## Updating an existing game
-Download the latest main-branch ZIP or pull main, then open its project.godot in Godot and press F5. Keep the application name Garden Empire: the new build reads the same local save folder. Saves from schemas 1–4 migrate to schema 5 automatically, preserving coins, inventory, planted crops, upgrades, goals and settings. No reset is needed.
+Download the latest main-branch ZIP or pull main, then open its project.godot in Godot and press F5. Keep the application name Garden Empire: the new build reads the same local save folder. Saves from schemas 1–5 migrate to schema 6 automatically, preserving coins, inventory, planted crops, upgrades, goals and settings. Existing 16-bed saves gain four empty slots while keeping their original crop IDs and expansion ranks. No reset is needed.
+
+## What's new in 0.8
+- **5×4 property: 20 smaller beds**, starting with four open; road runs beside the garden in a separate corridor.
+- **Earned area progression:** Cottage Garden → Market Courtyard at 9 open beds → Lakeside Garden at 16. Each milestone selects the newly unlocked area; return to earlier areas from **Garden**.
+- Areas change surroundings, frontage and bed arrangement while keeping your same crops, timers, inventory and upgrades.
+- Garden contains area visits and the three existing cosmetic looks. Locked areas show their expansion requirement.
+- Original expansion prices remain; beds 17–20 cost 6,000 / 9,500 / 15,000 / 24,000 coins. Batch gardening and offline automation support all 20 beds.
+- [Progression, migration and verification](docs/PROGRESSION_08.md). Later nursery/greenhouse businesses remain future content.
 
 ## What's new in 0.7
 - Ten original painted-style miniature assets: cottage, market, well, trees, pond and all five crops. Separate transparent objects retain real interaction; see [asset provenance](assets/painted/README.md).
@@ -61,16 +69,19 @@ From this repository:
 ```sh
 tools/verify.sh
 ```
-This imports scripts, runs **679 automated checks** (140 core + 104 requests + 386 redesign/migration/layout + 49 presentation checks), then launches a headless runtime smoke test. It isolates test data in a temporary directory.
+This imports scripts, runs **1,194 automated checks** (140 core + 104 requests + 428 redesign/layout + 49 presentation + 473 areas/migration/progression checks), then launches a headless runtime smoke test. It isolates test data in a temporary directory.
 
 Additional checks:
 ```sh
 # Requires a working display (~20s: two real growth cycles, sales and request delivery).
 godot --path . --audio-driver Dummy --script tests/smoke_interaction.gd
 
-# All 16 plots/artwork, buildings, upgrade confirmation/cancel, decor, restart.
+# Mixed crop artwork, buildings, upgrade confirmation/cancel, decor, restart.
 # Omit --skip-benchmark to also rewrite docs/UI_RENDER_METRICS.json.
 godot --path . --audio-driver Dummy --script tests/smoke_redesign.gd -- --skip-benchmark
+
+# Real expansion purchases, both area unlocks, 20 crops in each layout and save.
+godot --path . --audio-driver Dummy --script tests/smoke_areas.gd
 
 # Four deterministic strategies, 10,000 synthetic players; ~3 minutes here.
 # Rewrites docs/SIMULATION_RESULTS.json. For a quick run append: -- --runs=100
@@ -92,7 +103,7 @@ Developer coin control: `godot --path . -- --debug-garden` then Settings; only a
 
 ## Status and continuation
 Redesign audit, architecture, milestones and limitations: [UI_REDESIGN.md](docs/UI_REDESIGN.md).
-Desktop verification: 679 headless checks and 176 rendered pointer checks (25 workflow + 151 redesign, covering all five crop types at normal/narrow sizes). Actual screenshots show fresh state or explicitly seeded demo fixtures.
+Desktop verification: 1,194 headless checks and 267 rendered pointer checks (25 workflow + 151 redesign + 91 area/progression), covering actual unlock purchases and every bed in all three areas. Actual screenshots show fresh state or explicitly seeded demo fixtures.
 
 The virtual software renderer produced variable frame times and large spikes; see UI_RENDER_METRICS.json and UI_REDESIGN.md. No stable Android FPS, battery, physical dp/safe-area, or screen-reader acceptance is claimed.
 

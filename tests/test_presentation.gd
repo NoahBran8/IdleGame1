@@ -77,7 +77,7 @@ func _run() -> void:
 	check(JSON.stringify(game.model.state) == before,"presentation refreshes never mutate earned state")
 	check(Save.new(game.save_path).store(game.model),"presentation fixture saves normally")
 	var restored := Model.new()
-	check(Save.new(game.save_path).load_into(restored) and restored.state.upgrades.helper == 1 and restored.state.version == 5,"presentation uses unchanged schema and upgrade state")
+	check(Save.new(game.save_path).load_into(restored) and restored.state.upgrades.helper == 1 and restored.state.version == 6,"presentation preserves the current schema and upgrade state")
 	for object: Button in game.board.buildings.values():
 		object.size = Vector2(51,48)
 		object.large_text = true

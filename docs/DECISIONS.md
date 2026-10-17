@@ -44,3 +44,7 @@ Keep domain rules and save schema 5 stable during the art pass. Use original edi
 
 ## 0.7 readable miniature simulation
 Use broad simulation-design qualities—readable cause/effect, visible investments and useful feedback—to guide an original direction. No named designer's IP or existing game assets are copied. Ten generated transparent sprites share an internally generated cottage reference; document provenance and keep source detail while capping runtime imports. Market bouquets use unreserved stock; navigation badges reflect total inventory, fulfillable recipes and earned unclaimed goals. Shared-stock recipes need explicit tooltip wording. Installation props reflect saved ranks without adding NPC simulation, production or new economic behavior. Keep the existing model and schema 5 stable.
+
+
+## 0.8 smaller beds and earned areas
+Choose 5x4 / 20 beds, append rather than renumber saved plot slots, and reserve a separate road corridor. Each area presents the same persistent plot IDs with a different depth-sorted arrangement, frontage and environment. Gate Market at 9 open beds and Lakeside at 16; actual qualifying purchases select their area. Migration leaves old gardens at Cottage while granting visits from their existing expansion count. Persist area in schema 6. Keep original prices and add only four late expansion steps. Garden combines real area cards with the existing looks; no incomplete business button is introduced. This creates a first property progression layer; separate nursery/greenhouse production is later scope.

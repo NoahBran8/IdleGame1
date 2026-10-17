@@ -9,6 +9,7 @@ const Model = preload("res://scripts/domain/game_model.gd")
 const Save = preload("res://scripts/services/save_service.gd")
 const Analytics = preload("res://scripts/services/analytics_service.gd")
 const Audio = preload("res://scripts/services/audio_service.gd")
+const Areas = preload("res://scripts/domain/garden_areas.gd")
 const Board = preload("res://scripts/ui/garden_board.gd")
 var status_banner: PanelContainer
 var dock_scroll: ScrollContainer
@@ -174,6 +175,10 @@ func _refresh() -> void:
 	level_progress.tooltip_text = "%d / %d XP to level %d" % [int(level_progress.value), int(level_progress.max_value), model.level() + 1]
 	unlock_hint.text = "%d XP to next level" % int(level_progress.max_value - level_progress.value) if get_viewport_rect().size.x >= 400 else "%d XP" % int(level_progress.max_value - level_progress.value)
 	unlock_hint.tooltip_text = level_progress.tooltip_text
+	var next_area: String = Areas.next_area(int(model.state.plots_unlocked))
+	unlock_hint.tooltip_text += " · %d/20 beds" % int(model.state.plots_unlocked)
+	if not next_area.is_empty():
+		unlock_hint.tooltip_text += " · %s opens at %d beds" % [Areas.DATA[next_area].name,Areas.DATA[next_area].plots]
 	for id: String in model.config.plants:
 		if int(model.config.plants[id].level_required) > model.level():
 			unlock_hint.tooltip_text += " · %s unlocks at level %d" % [model.config.plants[id].name, int(model.config.plants[id].level_required)]
@@ -187,7 +192,7 @@ func _refresh() -> void:
 			ready_count += 1
 		elif model.phase(i, now()) >= 0:
 			growing += 1
-	hint.text = "%d ready · %d growing" % [ready_count, growing]
+	hint.text = "%s · %d/20 beds · %d ready · %d growing" % [Areas.DATA[model.state.garden_area].short,int(model.state.plots_unlocked),ready_count,growing]
 	if plant_all_button != null:
 		var quote: Dictionary = model.planting_quote(selected)
 		plant_all_button.text = "Plant %d · %dc" % [int(quote.count), int(quote.cost)]
@@ -395,8 +400,11 @@ func _purchase(id: String, expected_price: int = -1) -> void:
 		_refresh_panel()
 		return
 	model.advance_to(now())
+	var previous_area: String = str(model.state.garden_area)
 	if model.buy_upgrade(id, now()):
 		notice.text = model.config.upgrades[id].name + " purchased."
+		if model.state.garden_area != previous_area:
+			notice.text = Areas.DATA[model.state.garden_area].name + " unlocked! Visit earlier areas from Garden."
 		_event("upgrade_purchased", {"upgrade": id})
 		if id == "stand":
 			_event("stand_unlocked")
@@ -590,6 +598,22 @@ func _refresh_dock() -> void:
 			var card: Button = _selector_card(id, names[id], "MAX" if price < 0 else "%d coins" % price, "stand" if id == "stand" else "home" if id == "plots" else "decor", func() -> void: _open_panel("Shop"))
 			card.tooltip_text = model.config.upgrades[id].description + " · " + _effect_preview(id)
 	else:
+		for area_id: String in Areas.ORDER:
+			var row: Dictionary = Areas.DATA[area_id]
+			var unlocked: bool = Areas.unlocked(area_id,int(model.state.plots_unlocked))
+			var caption: String = "Selected" if model.state.garden_area == area_id else "Visit garden" if unlocked else "%d/%d beds" % [int(model.state.plots_unlocked),int(row.plots)]
+			var card: Button = _selector_card("area_"+area_id,row.short,caption,"home",func() -> void:
+				if model.select_area(area_id):
+					notice.text = row.name + " · your crops and progress come with you."
+					_save()
+					_refresh()
+					_refresh_dock()
+					apply_settings()
+			)
+			card.picture = load("res://assets/painted/"+{"cottage":"cottage","market":"market","lakeside":"pond"}[area_id]+".png")
+			card.disabled = not unlocked
+			card.tooltip_text = row.name+" · "+row.description+" Opens at %d beds. Expand from Buildings." % int(row.plots)
+			card.set_pressed_no_signal(model.state.garden_area == area_id)
 		for entry: Array in [["meadow","Meadow","sunflower"],["wildflowers","Flower border","rose"],["stone","Stone walk","home"]]:
 			var id: String = entry[0]
 			var card: Button = _selector_card(id, entry[1], "Selected" if model.state.decor == id else "Free garden look", entry[2], func() -> void:

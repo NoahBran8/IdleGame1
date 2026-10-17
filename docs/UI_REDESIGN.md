@@ -76,3 +76,8 @@ The 0.6 desktop sample recorded median 34.87ms / p95 55.62ms over 180 frames, 86
 ## Detailed miniature milestone: 0.7
 ART_DIRECTION_07.md records the next audit, asset strategy and implementation. Ten generated transparent sprites replace primary world/crop art, while independent plot/building controls and alpha-aware hits remain. Saved upgrades appear as props; stand stock and navigation badges expose existing model state. Current verification: 679 automated + 176 rendered checks. Eight actual preview images include garden-estate.png. Schema, domain rules and save path are unchanged. Asset generation/import provenance is documented; this does not establish launch/device acceptance.
 The 0.7 desktop timing sample was median 39.81ms / p95 83.48ms across 180 frames, 86 nodes at 320x640. Software samples remain variable; no performance improvement or Android frame-rate acceptance is claimed.
+
+
+## 0.8 property progression
+PROGRESSION_08.md describes the 5x4 smaller-bed layout, separate roadside garden, schema-6 append-only capacity migration, and earned Market/Lakeside visits. Original painted theme and functional object architecture remain. Current verification: 1,194 automated + 267 rendered checks, plus two 100-trial invariant smoke simulations. The world now has earned environmental milestones; complete long-term content and device acceptance remain pending.
+The updated 20-grown-plant desktop fixture recorded median 33.95ms / p95 53.62ms across 180 frames, 90 nodes at 320x640. Software samples remain variable; no real-device frame-rate claim.

@@ -1,4 +1,6 @@
 # Continue work
+
+Latest: app 0.8.0 / save schema 6. Read PROGRESSION_08.md first; older version notes below are historical.
 1. Read CODEX_MASTER_SPEC.md, DECISIONS.md, IMPLEMENTATION_STATUS.md, TEST_PLAN.md and the historical SIMULATION_RESULTS.json and new REQUEST_SIMULATION_RESULTS.json.
 2. Run tools/verify.sh with Godot 4.6.3. Run rendered interaction smoke and preview commands in README if a display is available.
 3. Review both economy simulation methods. Compare request-focused versus sale-focused policies under matched visits before changing the balance. Simulated strategies are not human behavior; tune timing through usability sessions before adding content or monetization.
@@ -15,3 +17,6 @@
 
 
 0.7: read ART_DIRECTION_07.md, assets/painted/README.md and provenance.json. App version 0.7.0, schema 5 unchanged. Current verification is 679 automated and 176 rendered checks. Presentation badges/market stock must remain derived from actual inventory, reservations and quest state. Keep generated sprites as separate objects; retain import size caps and mipmaps. Review actual garden-estate/320 screenshots before further art changes. Physical-device profiling and independent art/usability review remain open.
+
+
+0.8: keep the approved painted theme. Capacity is 20 (5x4); preserve IDs 0–15 and append new beds when migrating schema 5. Areas share the same crops/inventory and unlock at 9/16 open beds. Garden contains visits and all cosmetic looks. Road/bed bounds must remain disjoint at narrow sizes. Current verification: 1,194 automated + 267 rendered checks, two 100-player synthetic smoke reports. Run test_areas and smoke_areas with future progression changes. Next product work: independent pacing sessions and properly designed nursery/greenhouse businesses, not fake map-production rewards. Device/accessibility acceptance remains open.

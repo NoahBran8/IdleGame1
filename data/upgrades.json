@@ -4,9 +4,9 @@
     "name": "Garden expansion",
     "base_cost": 20,
     "multiplier": 1.55,
-    "max_level": 12,
+    "max_level": 16,
     "level_required": 1,
-    "description": "Unlock one more planting plot. Exact prices follow the plot price ladder."
+    "description": "Unlock one more bed, up to 20. Market Courtyard opens at 9 beds; Lakeside Garden at 16. Existing prices follow the plot ladder."
   },
   {
     "id": "compost",

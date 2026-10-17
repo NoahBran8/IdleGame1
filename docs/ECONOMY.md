@@ -46,3 +46,9 @@ The original baseline results above remain historical 0.3 evidence. Existing lon
 
 ## 0.5 interface redesign
 No plant/upgrade/request tuning or level curve changed. All three decor treatments are free visual selections; they neither credit nor debit currency or XP. Schema 5 adds only the look and preserves every previous field. Earlier synthetic economy reports remain historical evidence, not new 0.5 measurements.
+
+
+## 0.8 property expansion
+Player-requested capacity change: 20 total beds (5x4), four initially open, expansion rank cap 16. The original twelve expansion prices are preserved. Beds 17–20 add explicit prices of 6,000, 9,500, 15,000 and 24,000 coins. Area visits cost nothing; Market unlocks at 9 open beds and Lakeside at 16. These are shared-garden layout/surrounding milestones, not additional production queues. No seed price, growth, sale, XP, reservation or automation interval changed.
+
+Full-capacity throughput can be 25% higher than a 16-bed garden. Two versioned 100-trial synthetic smoke reports (SIMULATION_08.json and REQUEST_SIMULATION_08.json) pass invariants. They do not validate human pacing or retention. Strategy-dependent unlock timing, rising late XP without additional species, and fast late progression remain material limits. Nursery/greenhouse businesses and later chapters require their own economic/content design and independent tests; the new maps do not claim those features.

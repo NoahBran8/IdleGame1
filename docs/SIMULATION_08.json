@@ -1,0 +1,218 @@
+{
+  "app_version": "0.8.0",
+  "failures": 0,
+  "method": "One hour with 8-20s visits in the first minute then 30-180s visits, returns at day 1 and day 7. Offline cap applies to each absence. Four deterministic strategies; seed varies per player. Measures model invariants and synthetic economy, not human retention.",
+  "runs": 100,
+  "runtime_seconds": 1.325,
+  "seed": 20261015,
+  "strategies": {
+    "collector": {
+      "dead_ends": 0,
+      "levels": {
+        "max": 329,
+        "mean": 246.64,
+        "median": 265,
+        "min": 116,
+        "p90": 301,
+        "samples": 25
+      },
+      "plots": {
+        "max": 19,
+        "mean": 18.44,
+        "median": 19,
+        "min": 16,
+        "p90": 19,
+        "samples": 25
+      },
+      "runs": 25,
+      "stand_unlock_seconds": {
+        "max": 2425,
+        "mean": 1804.04,
+        "median": 1844,
+        "min": 1161,
+        "p90": 2231,
+        "samples": 25
+      },
+      "wallet_1d": {
+        "max": 12826,
+        "mean": 4256.4,
+        "median": 2738,
+        "min": 1,
+        "p90": 12029,
+        "samples": 25
+      },
+      "wallet_1h": {
+        "max": 13672,
+        "mean": 5105.44,
+        "median": 4568,
+        "min": 21,
+        "p90": 11708,
+        "samples": 25
+      },
+      "wallet_7d": {
+        "max": 15543,
+        "mean": 4963.24,
+        "median": 4261,
+        "min": 5,
+        "p90": 12103,
+        "samples": 25
+      }
+    },
+    "fast_profit": {
+      "dead_ends": 0,
+      "levels": {
+        "max": 264,
+        "mean": 195.56,
+        "median": 197,
+        "min": 128,
+        "p90": 244,
+        "samples": 25
+      },
+      "plots": {
+        "max": 20,
+        "mean": 19.36,
+        "median": 19,
+        "min": 19,
+        "p90": 20,
+        "samples": 25
+      },
+      "runs": 25,
+      "stand_unlock_seconds": {
+        "max": 3581,
+        "mean": 3179.0,
+        "median": 3236,
+        "min": 2580,
+        "p90": 3535,
+        "samples": 24
+      },
+      "wallet_1d": {
+        "max": 19674,
+        "mean": 9351.32,
+        "median": 11377,
+        "min": 0,
+        "p90": 16996,
+        "samples": 25
+      },
+      "wallet_1h": {
+        "max": 19811,
+        "mean": 7690.08,
+        "median": 6960,
+        "min": 3,
+        "p90": 14845,
+        "samples": 25
+      },
+      "wallet_7d": {
+        "max": 20279,
+        "mean": 9952.64,
+        "median": 9008,
+        "min": 4,
+        "p90": 19663,
+        "samples": 25
+      }
+    },
+    "high_margin": {
+      "dead_ends": 0,
+      "levels": {
+        "max": 271,
+        "mean": 206.0,
+        "median": 208,
+        "min": 150,
+        "p90": 244,
+        "samples": 25
+      },
+      "plots": {
+        "max": 20,
+        "mean": 19.44,
+        "median": 19,
+        "min": 19,
+        "p90": 20,
+        "samples": 25
+      },
+      "runs": 25,
+      "stand_unlock_seconds": {
+        "max": 3579,
+        "mean": 3064.64,
+        "median": 3054,
+        "min": 2484,
+        "p90": 3477,
+        "samples": 25
+      },
+      "wallet_1d": {
+        "max": 20361,
+        "mean": 7835.04,
+        "median": 9254,
+        "min": 3,
+        "p90": 16660,
+        "samples": 25
+      },
+      "wallet_1h": {
+        "max": 20185,
+        "mean": 7337.2,
+        "median": 6429,
+        "min": 0,
+        "p90": 14882,
+        "samples": 25
+      },
+      "wallet_7d": {
+        "max": 20298,
+        "mean": 10047.52,
+        "median": 9432,
+        "min": 4,
+        "p90": 19411,
+        "samples": 25
+      }
+    },
+    "thrifty": {
+      "dead_ends": 0,
+      "levels": {
+        "max": 19,
+        "mean": 16.12,
+        "median": 16,
+        "min": 15,
+        "p90": 18,
+        "samples": 25
+      },
+      "plots": {
+        "max": 11,
+        "mean": 10.08,
+        "median": 10,
+        "min": 10,
+        "p90": 10,
+        "samples": 25
+      },
+      "runs": 25,
+      "stand_unlock_seconds": {
+        "max": 2487,
+        "mean": 2262.2,
+        "median": 2290,
+        "min": 1931,
+        "p90": 2419,
+        "samples": 25
+      },
+      "wallet_1d": {
+        "max": 411,
+        "mean": 228.96,
+        "median": 242,
+        "min": 111,
+        "p90": 292,
+        "samples": 25
+      },
+      "wallet_1h": {
+        "max": 351,
+        "mean": 220.12,
+        "median": 242,
+        "min": 86,
+        "p90": 292,
+        "samples": 25
+      },
+      "wallet_7d": {
+        "max": 411,
+        "mean": 215.16,
+        "median": 218,
+        "min": 86,
+        "p90": 351,
+        "samples": 25
+      }
+    }
+  }
+}

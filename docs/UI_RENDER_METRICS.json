@@ -3,9 +3,9 @@
   "engine": "4.6.3-stable (official)",
   "environment": "Xorg virtual display + Mesa llvmpipe software renderer",
   "frames": 180,
-  "median_frame_ms": 39.81,
-  "notes": "Desktop frame timing sample with 16 grown plants. Not a device FPS/battery claim.",
-  "p95_frame_ms": 83.48,
-  "scene_nodes": 86,
+  "median_frame_ms": 33.95,
+  "notes": "Desktop frame timing sample with 20 grown plants. Not a device FPS/battery claim.",
+  "p95_frame_ms": 53.62,
+  "scene_nodes": 90,
   "viewport": "320x640"
 }

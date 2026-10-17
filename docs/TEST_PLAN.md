@@ -60,3 +60,13 @@ Use README commands. In this session actual rendered commands used DISPLAY=:99, 
 - Eight actual previews captured, including developed-garden installation/stock details. Normal, narrow large-text and developed scenes inspected visually. Fixture scenes do not represent player/user-research evidence.
 - Shared/mipmapped imports cap world textures at 256px and crop textures at 128px. Source PNGs retain original detail for future work. No continuous ambient animation was added; existing reduced-motion checks pass.
 - Latest desktop timing sample is UI_RENDER_METRICS.json; software-renderer timing is not Android acceptance.
+
+
+## 0.8 verification
+- tools/verify.sh passes 1,194 checks: 140 core + 104 requests + 428 redesign + 49 presentation + 473 area tests; headless runtime smoke passes.
+- tests/test_areas.gd covers real 16-bed v5 JSON migration, every-field preservation, four appended empties, source immutability, repeated reload, locked/unknown visit rejection, all expansion prices, unlock boundaries 8/9 and 15/16, cap 20, 20-bed batch gardening, offline helper/stand including bed 19, idempotent reconciliation and persisted area choice.
+- All areas at 320x568, 320x640 and 540x960: road/bed bounds do not intersect; all 20 bed controls are unique and in bounds at >=44 logical px width. The existing normal/large-text geometry matrix also passes. This is not physical dp certification.
+- 267 rendered pointer checks: 25 workflow (two real growth waits), 151 redesign/mixed crop checks and 91 new progression/area checks. Actual upgrade controls/confirmations purchase all 16 expansions; area cards visit every area; each of 20 crop targets is harvested in each arrangement, with exact inventory and reload assertions.
+- Updated 20-grown-plant desktop frame fixture records UI_RENDER_METRICS.json. Device FPS remains unverified.
+- 100 baseline-strategy and 100 request-strategy synthetic trials have zero invariant failures; versioned reports preserve historical files. Use --output=res://docs/SIMULATION_08.json or --output=res://docs/REQUEST_SIMULATION_08.json to reproduce separately.
+- Actual preview capture adds Market, Lakeside, starter locked-area cards and narrow area selection. Planted/established screenshots use labelled seeded fixtures.

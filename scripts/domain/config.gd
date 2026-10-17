@@ -19,8 +19,8 @@ func _init(data_root: String = "res://data") -> void:
 		if not integer(economy.get(field), 1, 9000000000000000):
 			error = "Invalid economy field: " + field
 			return
-	if not economy.get("plot_costs") is Array or economy.plot_costs.size() != 12:
-		error = "Expected twelve plot prices."
+	if not economy.get("plot_costs") is Array or economy.plot_costs.size() != 16:
+		error = "Expected sixteen plot prices."
 		return
 	for cost: Variant in economy.plot_costs:
 		if not integer(cost, 1, 9000000000000000):
@@ -79,6 +79,10 @@ func _init(data_root: String = "res://data") -> void:
 		upgrades[row.id] = row
 	if upgrades.size() != 8:
 		error = "Expected eight upgrades."
+		return
+	if int(upgrades.plots.max_level) != economy.plot_costs.size():
+		error = "Expansion rank cap must match the plot price ladder."
+		return
 
 	var quest_rows: Variant = _read_json(data_root + "/quests.json")
 	if not quest_rows is Array or quest_rows.size() != 5:

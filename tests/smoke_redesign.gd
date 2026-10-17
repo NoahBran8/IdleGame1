@@ -158,7 +158,9 @@ func _run() -> void:
 	game.set_process(false)
 	game.feedback.visible = false
 	game.model.state.settings.high_contrast = false
-	for index: int in range(16):
+	game.model.state.plots_unlocked = 20
+	game.model.state.upgrades.plots = 16
+	for index: int in range(20):
 		game.model.state.plots[index] = {}
 		game.model.plant(index,"sunflower",game.now()-game.model.growth_seconds("sunflower"))
 	game.visual_snapshot = {}
@@ -177,7 +179,7 @@ func _run() -> void:
 		"median_frame_ms":snappedf(samples[samples.size()/2],0.01),
 		"p95_frame_ms":snappedf(samples[int(samples.size()*0.95)],0.01),
 		"scene_nodes":get_node_count(),"environment":"Xorg virtual display + Mesa llvmpipe software renderer",
-		"android_validated":false,"notes":"Desktop frame timing sample with 16 grown plants. Not a device FPS/battery claim."}
+		"android_validated":false,"notes":"Desktop frame timing sample with 20 grown plants. Not a device FPS/battery claim."}
 	var file := FileAccess.open("res://docs/UI_RENDER_METRICS.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"  ")+"\n")
 	file.close()

@@ -29,6 +29,11 @@ func _capture() -> void:
 	garden._refresh()
 	garden._refresh_panel()
 	await snapshot("garden-start.png")
+	garden.dock_mode = "Decor"
+	garden._refresh_dock()
+	await snapshot("garden-journey-start.png")
+	garden.dock_mode = "Seeds"
+	garden._refresh_dock()
 	# Explicit seeded fixture, not real player progression.
 	garden.model.state.coins = 2400
 	garden.model.state.xp = 200
@@ -49,6 +54,12 @@ func _capture() -> void:
 	garden._refresh_panel()
 	await snapshot("garden-demo.png")
 	var base_demo: Dictionary = garden.model.state.duplicate(true)
+	garden.model.state.plots_unlocked = 20
+	garden.model.state.upgrades.plots = 16
+	garden.model.select_area("lakeside")
+	for index: int in range(12,20):
+		var id: String = species[index%species.size()]
+		garden.model.plant(index,id,garden.now()-garden.model.growth_seconds(id))
 	for id: String in ["compost","baskets","helper","signage","soil"]:
 		garden.model.state.upgrades[id] = 1
 	garden.model.state.inventory.carrot = 6
@@ -57,6 +68,12 @@ func _capture() -> void:
 	garden._refresh()
 	garden._refresh_panel()
 	await snapshot("garden-estate.png")
+	garden.model.select_area("market")
+	garden._refresh()
+	await snapshot("garden-market.png")
+	garden.model.select_area("lakeside")
+	garden._refresh()
+	await snapshot("garden-lakeside.png")
 	garden.model.state = base_demo
 	garden.notice.text = "A garden in bloom · demo fixture"
 	garden._refresh()
@@ -84,6 +101,10 @@ func _capture() -> void:
 	garden._refresh_dock()
 	garden.apply_settings()
 	await snapshot("garden-320.png")
+	garden.dock_mode = "Decor"
+	garden._refresh_dock()
+	garden.apply_settings()
+	await snapshot("garden-areas-320.png")
 	garden._open_panel("Inventory")
 	await snapshot("garden-inventory-320.png")
 	garden.queue_free()

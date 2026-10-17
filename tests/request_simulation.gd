@@ -4,6 +4,7 @@ const Model = preload("res://scripts/domain/game_model.gd")
 const Config = preload("res://scripts/domain/config.gd")
 const SEED: int = 20261016
 var failures: int = 0
+var output_path: String = "res://docs/REQUEST_SIMULATION_RESULTS.json"
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -11,6 +12,8 @@ func _initialize() -> void:
 func _run() -> void:
 	var runs: int = 1000
 	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--output="):
+			output_path = arg.trim_prefix("--output=")
 		if arg.begins_with("--runs="):
 			runs = clampi(int(arg.trim_prefix("--runs=")), 1, 1000)
 	var config := Config.new()
@@ -97,12 +100,12 @@ func _run() -> void:
 		if (trial + 1) % 100 == 0:
 			print("Request simulations: %d/%d" % [trial + 1, runs])
 			await process_frame
-	var report: Dictionary = {"app_version": "0.4.0", "runs": runs, "seed": SEED, "failures": failures,
+	var report: Dictionary = {"app_version": ProjectSettings.get_setting("application/config/version"), "runs": runs, "seed": SEED, "failures": failures,
 		"runtime_seconds": (Time.get_ticks_msec() - started) / 1000.0,
 		"method": "One hour of request-focused synthetic play, visits 20-90s apart, then offline returns at day 1/day 7 and JSON save roundtrip. Uses real seed costs, crops, upgrades and quest rewards. Checks reservations, valid states, stale deliveries and repeated offline processing.",
 		"total_deliveries": total_deliveries, "total_bonus_coins": total_bonus,
 		"deliveries_per_player": summarize(deliveries), "first_delivery_seconds": summarize(first_deliveries), "wallet_after_7d": summarize(wallets)}
-	var file := FileAccess.open("res://docs/REQUEST_SIMULATION_RESULTS.json", FileAccess.WRITE)
+	var file := FileAccess.open(output_path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  ") + "\n")
 	file.close()
 	print(JSON.stringify(report, "  "))

@@ -6,6 +6,7 @@ const STRATEGIES: Array[String] = ["fast_profit", "high_margin", "collector", "t
 const BASE_SEED: int = 20261015
 var config: GardenConfig
 var failures: int = 0
+var output_path: String = "res://docs/SIMULATION_RESULTS.json"
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -14,6 +15,8 @@ func _run() -> void:
 	config = Config.new()
 	var trials: int = 10000
 	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--output="):
+			output_path = arg.trim_prefix("--output=")
 		if arg.begins_with("--runs="):
 			trials = clampi(int(arg.trim_prefix("--runs=")), 1, 10000)
 	var groups: Dictionary = {}
@@ -66,11 +69,11 @@ func _run() -> void:
 		summaries[strategy] = {"runs": stats.runs, "dead_ends": stats.dead_ends,
 			"wallet_1h": summarize(stats["1h"]), "wallet_1d": summarize(stats["1d"]), "wallet_7d": summarize(stats["7d"]),
 			"stand_unlock_seconds": summarize(stats.stand_seconds), "plots": summarize(stats.plots), "levels": summarize(stats.levels)}
-	var report: Dictionary = {"seed": BASE_SEED, "runs": trials, "failures": failures,
+	var report: Dictionary = {"app_version":ProjectSettings.get_setting("application/config/version"),"seed": BASE_SEED, "runs": trials, "failures": failures,
 		"runtime_seconds": (Time.get_ticks_msec() - started) / 1000.0,
 		"method": "One hour with 8-20s visits in the first minute then 30-180s visits, returns at day 1 and day 7. Offline cap applies to each absence. Four deterministic strategies; seed varies per player. Measures model invariants and synthetic economy, not human retention.",
 		"strategies": summaries}
-	var file := FileAccess.open("res://docs/SIMULATION_RESULTS.json", FileAccess.WRITE)
+	var file := FileAccess.open(output_path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  ") + "\n")
 	file.close()
 	print(JSON.stringify(report, "  "))

@@ -86,7 +86,7 @@ func _draw() -> void:
 		badge.border_color = Color("#b88b45")
 		badge.set_border_width_all(1)
 		badge.set_corner_radius_all(5)
-		if size.x < 75:
+		if size.x < 100:
 			var point := text_position-Vector2(0,3)
 			draw_circle(point,6,Color("#fff1b3"))
 			draw_polyline(PackedVector2Array([point+Vector2(-3,0),point+Vector2(-1,2),point+Vector2(3,-3)]),Color("#436337"),1.8,true)
@@ -127,7 +127,7 @@ func _text(value: String, point: Vector2, font_size: int, color: Color) -> void:
 	draw_string(font, point - Vector2(width * 0.5, 0), value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 func art_rect() -> Rect2:
-	var height: float = minf(21+stage*9,size.x*0.65+8)
+	var height: float = minf(21+stage*9,minf(size.x*0.47+5,(size.y-ART_PADDING)*0.78))
 	var center := Vector2(size.x*0.5,ART_PADDING+(size.y-ART_PADDING)*0.5)
 	return Rect2(center+Vector2(-height*0.5,11-height),Vector2.ONE*height)
 

@@ -3,7 +3,9 @@ extends RefCounted
 
 const Config = preload("res://scripts/domain/config.gd")
 const Requests = preload("res://scripts/domain/request_rules.gd")
-const SAVE_VERSION: int = 5
+const SAVE_VERSION: int = 6
+const PLOT_COUNT: int = 20
+const Areas = preload("res://scripts/domain/garden_areas.gd")
 const MAX_COINS: int = 9000000000000000
 var config: GardenConfig
 var state: Dictionary
@@ -14,7 +16,7 @@ func _init(source: GardenConfig = null) -> void:
 
 func fresh() -> Dictionary:
 	var plots: Array = []
-	for index: int in range(16):
+	for index: int in range(PLOT_COUNT):
 		plots.append({})
 	var inventory: Dictionary = {}
 	for id: String in config.plants:
@@ -22,7 +24,7 @@ func fresh() -> Dictionary:
 	var upgrades: Dictionary = {}
 	for id: String in config.upgrades:
 		upgrades[id] = 0
-	return {"version": SAVE_VERSION, "decor": "meadow", "orders": initial_orders(1), "next_order_uid": 4, "orders_completed": 0, "pinned_order": 0, "claimed_quests": [], "onboarding": 0, "upgrades": upgrades, "last_update": 0, "stand_at": 0, "helper_at": 0, "coins": int(config.economy.get("starting_coins", 20)),
+	return {"version": SAVE_VERSION, "garden_area":"cottage", "decor": "meadow", "orders": initial_orders(1), "next_order_uid": 4, "orders_completed": 0, "pinned_order": 0, "claimed_quests": [], "onboarding": 0, "upgrades": upgrades, "last_update": 0, "stand_at": 0, "helper_at": 0, "coins": int(config.economy.get("starting_coins", 20)),
 		"xp": 0, "plots_unlocked": 4, "plots": plots, "inventory": inventory,
 		"discovered": [], "harvests": 0, "sales": 0, "saved_at": 0,
 		"settings": {"reduced_motion": false, "high_contrast": false, "large_text": false, "sound": true, "local_telemetry": true}}
@@ -96,11 +98,13 @@ func validate(candidate: Variant) -> bool:
 	for field: String in ["coins", "xp", "harvests", "sales", "saved_at", "last_update", "stand_at", "helper_at"]:
 		if not Config.integer(candidate.get(field), 0, MAX_COINS):
 			return false
-	if not Config.integer(candidate.get("plots_unlocked"), 4, 16):
+	if not Config.integer(candidate.get("plots_unlocked"), 4, PLOT_COUNT):
 		return false
-	if not candidate.get("plots") is Array or candidate.plots.size() != 16:
+	if not Areas.unlocked(str(candidate.get("garden_area","")),int(candidate.get("plots_unlocked",0))):
 		return false
-	for index: int in range(16):
+	if not candidate.get("plots") is Array or candidate.plots.size() != PLOT_COUNT:
+		return false
+	for index: int in range(PLOT_COUNT):
 		var p: Variant = candidate.plots[index]
 		if not p is Dictionary:
 			return false
@@ -108,7 +112,7 @@ func validate(candidate: Variant) -> bool:
 			continue
 		if index >= int(candidate.plots_unlocked) or not config.plants.has(p.get("species_id", "")):
 			return false
-		if not Config.integer(p.get("plot_id"), 0, 15) or p.plot_id != index:
+		if not Config.integer(p.get("plot_id"), 0, PLOT_COUNT-1) or p.plot_id != index:
 			return false
 		if not Config.integer(p.get("planted_at_utc"), 0, MAX_COINS) or not Config.integer(p.get("maturity_at_utc"), 1, MAX_COINS):
 			return false
@@ -214,6 +218,9 @@ func buy_upgrade(id: String, now: int) -> bool:
 	state.upgrades[id] = int(state.upgrades[id]) + 1
 	if id == "plots":
 		state.plots_unlocked = int(state.plots_unlocked) + 1
+		var area: String = Areas.milestone(int(state.plots_unlocked))
+		if not area.is_empty():
+			state.garden_area = area
 	elif id == "stand":
 		state.stand_at = now
 	elif id == "helper":
@@ -324,8 +331,15 @@ func migrate(candidate: Variant) -> Variant:
 		candidate.pinned_order = 0
 	if candidate.get("version") == 4:
 		candidate = candidate.duplicate(true)
-		candidate.version = SAVE_VERSION
+		candidate.version = 5
 		candidate.decor = "meadow"
+	if candidate.get("version") == 5:
+		candidate = candidate.duplicate(true)
+		candidate.version = SAVE_VERSION
+		candidate.garden_area = "cottage"
+		if candidate.get("plots") is Array and candidate.plots.size() == 16:
+			for extra: int in range(4):
+				candidate.plots.append({})
 	return candidate
 
 func quest_progress(id: String) -> int:
@@ -450,7 +464,7 @@ func planting_quote(species: String) -> Dictionary:
 	quote.cost = int(quote.count) * price
 	return quote
 
-func plant_available(species: String, moment: int, limit: int = 16) -> int:
+func plant_available(species: String, moment: int, limit: int = PLOT_COUNT) -> int:
 	var planted: int = 0
 	for index: int in range(int(state.plots_unlocked)):
 		if planted >= limit:
@@ -465,3 +479,9 @@ func harvest_ready(moment: int) -> int:
 		if harvest(index, moment):
 			harvested += 1
 	return harvested
+
+func select_area(id: String) -> bool:
+	if not Areas.unlocked(id,int(state.plots_unlocked)):
+		return false
+	state.garden_area = id
+	return true

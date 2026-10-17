@@ -225,7 +225,7 @@ func _run() -> void:
 	# Transaction checks are silent; rendered smoke covers active audio playback.
 	garden.model.state.settings.sound = false
 	await process_frame
-	check(garden.board.plots.size() == 16, "garden scene mounts sixteen plots")
+	check(garden.board.plots.size() == 20, "garden scene mounts twenty plots")
 	check(garden.hud.text == "20", "HUD mounted")
 	garden._on_plot(0)
 	check(garden.model.state.plots[0].size() > 0, "scene planting handler")

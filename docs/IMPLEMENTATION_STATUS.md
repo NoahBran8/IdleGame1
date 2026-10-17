@@ -1,7 +1,7 @@
 # Implementation status
 
 ## Verified playable scope
-Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially open), five plants with three timed growth stages, planting/harvesting, inventory sell-one/all, integer coin wallet, XP/level gates, eight upgrades, stocked flower stand, later harvest helper, eight-hour offline growth/sales cap, local saves/backups/migrations, collection, five permanent quests, contextual onboarding, generated sound/mute, reduced motion, large text, high contrast, local-only telemetry and debug-gated balance control. Version 0.4 adds a three-card repeatable request board (eight recipes), optional crop reservations, batch gardening, plot countdown/progress meters, an XP/unlock hint and richer original plant/garden art.
+Godot 4.6.3 stable, painted isometric garden, 5×4 property with 20 beds (4 initially open), three earned property areas, five plants with three timed growth stages, planting/harvesting, inventory sell-one/all, integer coin wallet, XP/level gates, eight upgrades, stocked flower stand, later harvest helper, eight-hour offline growth/sales cap, local saves/backups/migrations, collection, five permanent quests, contextual onboarding, generated sound/mute, reduced motion, large text, high contrast, local-only telemetry and debug-gated balance control. Version 0.4 adds a three-card repeatable request board (eight recipes), optional crop reservations, batch gardening, plot countdown/progress meters, an XP/unlock hint and richer original plant/garden art.
 
 ## Milestone acceptance
 | Milestone | Status | Evidence / limit |
@@ -10,7 +10,7 @@ Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially 
 | M1 | Implemented, desktop verified | Real pointer planting → 8s growth → harvest → inventory sale → reload; atomic temp/rename saves and previous backup; tested corruption recovery. |
 | M2 | Implemented, desktop verified | Eight upgrades; XP; stand/helper; chronological capped offline processing; persisted cursor; 50 bulk-vs-incremental equivalence trials. |
 | M3 | Features implemented; mobile acceptance pending | Collection, five quests, tutorial hints, sound and accessibility settings, telemetry adapter. Real Godot renders inspected at 540px/320px. Hardware audio/haptics, touch, safe areas, contrast audit and usability still pending. |
-| M4 | Partial | 679 automated checks and 176 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
+| M4 | Partial | 1,194 automated checks and 267 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
 | M5 | Not started | No independent testers or retention results. No ads/IAP. |
 
 ## Material limitations
@@ -54,3 +54,9 @@ Verification: 630 headless checks and 160 rendered pointer checks pass; actual 5
 Replaced primary world/crop illustrations with ten original generated painted-style sprites and retained independent interactive objects. Added fine terrain/terrace detail and visible representations of the existing compost, irrigation, basket, signage, helper and learning upgrades. Real unreserved stock controls market-counter bouquets/status; inventory, fulfillable-request and earned-goal badges derive from the existing model. Shared recipe stock is disclosed in the request tooltip.
 
 49 presentation checks supplement the previous 630 automated checks. Rendered verification is 176 checks (25 workflow + 151 expanded mixed-crop/narrow interaction checks), all passing. Runtime texture dimensions are checked (256px world/128px crops). Schema remains 5; domain rules/services/data were not changed. Eight actual previews include a labelled established-garden fixture. Read ART_DIRECTION_07.md and assets/painted/README.md. Real-device/mobile, formal accessibility and independent tester acceptance remain open.
+
+
+## 0.8 capacity and property progression
+Twenty smaller beds replace the 4x4 layout; road and planting bounds are separate. Market Courtyard unlocks at 9 open beds, Lakeside at 16, with distinct surroundings/frontage/bed ordering and persistent visits through Garden. Milestone purchases select their new area. All areas use the same stable crop IDs and inventory; separate businesses are future work.
+
+Schema 6 appends four empty slots to 16-bed v5 saves and adds garden_area=cottage, preserving every existing field/crop/time. Old prices remain; only beds 17–20 add prices. Automation and batch gardening support 20 beds. Verified: 1,194 automated checks, 267 real-pointer checks, two 100-player synthetic invariant runs; all pass. See PROGRESSION_08.md. Early/mid-game progression is more visible; long-term content/pacing and Android acceptance remain open.

@@ -132,7 +132,7 @@ static func build(game: Control) -> void:
 	var tabs := HBoxContainer.new()
 	dock_body.add_child(tabs)
 	for mode: String in ["Seeds","Buildings","Decor"]:
-		var button: Button = game._button(tabs, mode, func() -> void:
+		var button: Button = game._button(tabs, "Garden" if mode == "Decor" else mode, func() -> void:
 			game.dock_mode = mode
 			game._close_panel()
 			game._refresh_dock()
