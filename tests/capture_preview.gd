@@ -48,6 +48,19 @@ func _capture() -> void:
 	garden._refresh()
 	garden._refresh_panel()
 	await snapshot("garden-demo.png")
+	var base_demo: Dictionary = garden.model.state.duplicate(true)
+	for id: String in ["compost","baskets","helper","signage","soil"]:
+		garden.model.state.upgrades[id] = 1
+	garden.model.state.inventory.carrot = 6
+	garden.model.state.inventory.sunflower = 3
+	garden.notice.text = "An established garden · demo fixture"
+	garden._refresh()
+	garden._refresh_panel()
+	await snapshot("garden-estate.png")
+	garden.model.state = base_demo
+	garden.notice.text = "A garden in bloom · demo fixture"
+	garden._refresh()
+	garden._refresh_panel()
 	garden.model.state.inventory.carrot = 3
 	garden.model.state.inventory.sunflower = 2
 	garden.model.pin_order(1)

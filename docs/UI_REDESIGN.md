@@ -71,3 +71,8 @@ No Android APK, stable device FPS, accessibility certification, user retention o
 ## Subsequent visual milestone: 0.6
 See ART_DIRECTION_06.md for the storybook art audit, asset strategy, implementation and verification. The shell/model/save boundaries above remain intact. Current counts are 630 headless checks and 160 rendered pointer checks. Artwork and screenshots now reflect 0.6; the earlier milestone and timing figures above are retained as historical evidence.
 The 0.6 desktop sample recorded median 34.87ms / p95 55.62ms over 180 frames, 86 nodes at 320x640. This remains a software-renderer observation, not a stable performance improvement or Android acceptance result.
+
+
+## Detailed miniature milestone: 0.7
+ART_DIRECTION_07.md records the next audit, asset strategy and implementation. Ten generated transparent sprites replace primary world/crop art, while independent plot/building controls and alpha-aware hits remain. Saved upgrades appear as props; stand stock and navigation badges expose existing model state. Current verification: 679 automated + 176 rendered checks. Eight actual preview images include garden-estate.png. Schema, domain rules and save path are unchanged. Asset generation/import provenance is documented; this does not establish launch/device acceptance.
+The 0.7 desktop timing sample was median 39.81ms / p95 83.48ms across 180 frames, 86 nodes at 320x640. Software samples remain variable; no performance improvement or Android frame-rate acceptance is claimed.

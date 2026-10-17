@@ -1,5 +1,5 @@
 # Asset provenance
-All procedural graphics and UI authored for this project. No third-party art, audio, fonts or runtime dependencies added. Godot built-in font is distributed by Godot under its bundled licenses. No ownership or trademark clearance is asserted.
+Visuals combine procedural/SVG graphics authored for this project with project-specific generated PNG artwork (0.7; provenance below). No third-party art, audio, fonts or runtime dependencies added. Godot built-in font is distributed by Godot under its bundled licenses. No ownership or trademark clearance is asserted.
 
 Original synthesized audio: scripts/services/audio_service.gd, generated sine wave with envelope, no samples or external assets.
 Screenshots in docs/screenshots are actual Godot 4.6.3 OpenGL renders via Mesa llvmpipe. garden-start is a fresh game. garden-demo and garden-320 are deterministic test fixtures, not real player progression.
@@ -11,3 +11,8 @@ Screenshots in docs/screenshots are actual Godot 4.6.3 OpenGL renders via Mesa l
 Screenshots are actual engine captures. Dense garden, decor, inventory and confirmation images use explicit test fixtures; garden-start is a fresh game. This is not player-research or device validation.
 
 0.6 artwork: five original editable world SVGs in assets/world/ (cottage, market, well, tree, pond), plus refined original five-plant SVGs in assets/ui/. Authored for this repository with Codex assistance; no external source images, competitor assets, reference crops, font downloads or third-party asset packs. See assets/world/README.md. Landscape/soil/button additions are original native Godot drawing. World buildings remain independent visible controls; mature plant clusters share alpha-aware bed hit regions.
+
+
+0.7 artwork: ten transparent painted-style PNG sprites generated specifically for Garden Empire using OpenAI image_gen. The cottage used an original written brief; remaining sprites used only the project-generated cottage as aesthetic reference. No competitor image, external stock asset, logo, reference crop, third-party font or downloaded pack was used. assets/painted/README.md and provenance.json document their source and checksums. These are generated outputs, not a claim of human hand painting or involvement by a named game designer. No separately licensed third-party art pack or additional attribution requirement was introduced. Exclusivity and release/trademark clearance are not asserted.
+
+Six small original SVG installation props plus grass detail in assets/world/ complement the painted objects. Earlier source SVGs are retained. New screenshots are actual engine renders; garden-estate is a seeded developed-garden fixture.

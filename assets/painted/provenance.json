@@ -1,0 +1,82 @@
+[
+  {
+    "asset": "cottage.png",
+    "generation_id": "exec-7ec86c92-2966-4649-9f0c-a7de79ee83c0",
+    "sha256": "29837ae4941376b8aed7965db43d57d52fcec94d02494d9be24387be9b001e77",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 256
+  },
+  {
+    "asset": "market.png",
+    "generation_id": "exec-1dcd45aa-153c-448b-9dc9-6305f4c59192",
+    "sha256": "c8b02dd11f37bee4a42d5373094f3122dab5eede8a3c028d20438ea6a43f6ae5",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 256
+  },
+  {
+    "asset": "well.png",
+    "generation_id": "exec-23ae511b-51aa-498f-bbc6-0b429e571d0e",
+    "sha256": "201da58f91f6e1df79d9ecb16d60c0105821ec0caaa7b5de15f9875d8c03b822",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 256
+  },
+  {
+    "asset": "tree.png",
+    "generation_id": "exec-d20a7985-eb47-4145-be37-4b05dccb7fc6",
+    "sha256": "b1d662d55d20323e2a6cd38dd99a7419bf3a003f086bbc94cddf0036131f3d5e",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 256
+  },
+  {
+    "asset": "pond.png",
+    "generation_id": "exec-683d3054-77e3-4cd5-ad20-b4ed35edcb84",
+    "sha256": "6fbae4bbb53e028aa73e9323f9166855cfde9fbbbe08054e284a1ac0cbbad272",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 256
+  },
+  {
+    "asset": "carrot.png",
+    "generation_id": "exec-01ec5062-6efa-4b84-a6b9-be05333d1046",
+    "sha256": "e87b7697a2a0b4b2fca1292336cb29d0d6752147b0eb31c2bdc865c875fb1845",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 128
+  },
+  {
+    "asset": "sunflower.png",
+    "generation_id": "exec-6084cd5c-4820-4990-a726-e8359a1ce8ee",
+    "sha256": "8aa99ffe55b69e4f54277ba24e0e3489e5847c05d071591eac9e555d4549e558",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 128
+  },
+  {
+    "asset": "rose.png",
+    "generation_id": "exec-cd5b3dd3-c089-49d6-bb9b-9e03e2d303f2",
+    "sha256": "5ac88bcc4af56d5cea3e18c19b1b996d3d2368db3e9027c6a2c3f262a7cb360c",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 128
+  },
+  {
+    "asset": "lavender.png",
+    "generation_id": "exec-4145a0f2-174f-4b97-b889-3c9d0d70bff1",
+    "sha256": "86948edce8e462278fdf61a777d2c28541f131498aa892497cf6cb13c3ad66dd",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 128
+  },
+  {
+    "asset": "orchid.png",
+    "generation_id": "exec-b5b2d9f0-73f0-48cd-9546-a8f4d873d621",
+    "sha256": "4c9518b5566409703693d4ca309b87e00bf3c51f6f1034818396b96cc0bd96dc",
+    "source": "OpenAI image_gen, generated for Garden Empire",
+    "reference": "None for cottage; project-generated cottage for remaining assets",
+    "runtime_size_limit": 128
+  }
+]

@@ -40,3 +40,7 @@
 
 ## 0.6 storybook rendering
 Keep domain rules and save schema 5 stable during the art pass. Use original editable SVG building/plant/scenery textures, native static landscaping and existing reusable Controls. This supports independent world interaction and modest texture sizes without adding a large opaque backdrop, shader stack or external runtime dependency. Mature clusters use shared art and alpha-aware hits; use one silhouette at narrow widths to protect legibility. Autosave-only checkpoints must not rebuild interactive panels or discard focus; refresh content on actual inventory/income changes instead.
+
+
+## 0.7 readable miniature simulation
+Use broad simulation-design qualities—readable cause/effect, visible investments and useful feedback—to guide an original direction. No named designer's IP or existing game assets are copied. Ten generated transparent sprites share an internally generated cottage reference; document provenance and keep source detail while capping runtime imports. Market bouquets use unreserved stock; navigation badges reflect total inventory, fulfillable recipes and earned unclaimed goals. Shared-stock recipes need explicit tooltip wording. Installation props reflect saved ranks without adding NPC simulation, production or new economic behavior. Keep the existing model and schema 5 stable.

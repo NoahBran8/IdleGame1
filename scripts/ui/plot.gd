@@ -1,11 +1,11 @@
 extends Button
 
 const PLANT_ART: Dictionary = {
-	"carrot": preload("res://assets/ui/carrot.svg"),
-	"sunflower": preload("res://assets/ui/sunflower.svg"),
-	"rose": preload("res://assets/ui/rose.svg"),
-	"lavender": preload("res://assets/ui/lavender.svg"),
-	"orchid": preload("res://assets/ui/orchid.svg")
+	"carrot": preload("res://assets/painted/carrot.png"),
+	"sunflower": preload("res://assets/painted/sunflower.png"),
+	"rose": preload("res://assets/painted/rose.png"),
+	"lavender": preload("res://assets/painted/lavender.png"),
+	"orchid": preload("res://assets/painted/orchid.png")
 }
 
 const ART_PADDING: float = 30.0

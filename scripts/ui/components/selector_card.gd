@@ -4,6 +4,7 @@ var title: String = ""
 var caption: String = ""
 var picture: Texture2D
 var compact: bool = false
+var badge: String = ""
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(62, 60) if compact else Vector2(108, 92)
@@ -23,6 +24,17 @@ func _draw() -> void:
 		draw_arc(center,image_size*0.59,PI,TAU,20,Color("#fffdf0"),1,true)
 	if picture != null:
 		draw_texture_rect(picture, Rect2(Vector2((size.x - image_size) * 0.5, 6), Vector2.ONE * image_size), false, Color(1,1,1,0.55) if disabled else Color.WHITE)
+	if not badge.is_empty():
+		var extent := Vector2(27 if badge.length() > 2 else 21,19)
+		var rect := Rect2(Vector2(size.x-extent.x-2,2),extent)
+		var plate := StyleBoxFlat.new()
+		plate.bg_color = Color("#3e6347")
+		plate.border_color = Color("#fff3cb")
+		plate.set_border_width_all(1)
+		plate.set_corner_radius_all(9)
+		draw_style_box(plate,rect)
+		var width: float = font.get_string_size(badge,HORIZONTAL_ALIGNMENT_LEFT,-1,10).x
+		draw_string(font,rect.position+Vector2((extent.x-width)*0.5,13),badge,HORIZONTAL_ALIGNMENT_LEFT,-1,10,Color("#fff9e9"))
 	var ink := Color("#294b39") if not disabled else Color("#60715b")
 	_text(title, size.y - 9 if compact else size.y - 29, font, font_size, ink)
 	if not compact:

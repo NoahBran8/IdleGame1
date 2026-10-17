@@ -1,7 +1,8 @@
 extends Control
 
-const TREE = preload("res://assets/world/tree.svg")
-const POND = preload("res://assets/world/pond.svg")
+const GRASS = preload("res://assets/world/grass_detail.svg")
+const TREE = preload("res://assets/painted/tree.png")
+const POND = preload("res://assets/painted/pond.png")
 
 const Plot = preload("res://scripts/ui/plot.gd")
 const Building = preload("res://scripts/ui/components/world_building.gd")
@@ -73,6 +74,7 @@ func refresh(model: GardenModel, now: int, selected: String) -> void:
 		if object.large_text != model.state.settings.large_text:
 			object.large_text = model.state.settings.large_text
 			object.queue_redraw()
+		object.present(model)
 	if previous != [decor, has_stand, has_irrigation]:
 		queue_redraw()
 		buildings.stand.queue_redraw()
@@ -99,17 +101,18 @@ func refresh(model: GardenModel, now: int, selected: String) -> void:
 func _draw() -> void:
 	# Static landscape redraws only on resize, decoration or building changes.
 	# Functional beds and buildings remain independent child controls above it.
-	draw_rect(Rect2(Vector2.ZERO,size),Color("#a8cf79"))
+	draw_rect(Rect2(Vector2.ZERO,size),Color("#a9bd80"))
 	var usable: float = size.x-76
-	_ellipse(Vector2(size.x*0.2,0),Vector2(size.x*0.85,97),Color("#d4e8a6"))
-	_ellipse(Vector2(size.x*0.86,27),Vector2(size.x*0.57,75),Color("#bddc8d"))
-	_ellipse(Vector2(usable*0.45,size.y*0.55),Vector2(usable*0.70,size.y*0.49),Color("#b9db88"))
+	_ellipse(Vector2(size.x*0.2,0),Vector2(size.x*0.85,97),Color("#c6d79b"))
+	_ellipse(Vector2(size.x*0.86,27),Vector2(size.x*0.57,75),Color("#b5ca8c"))
+	_ellipse(Vector2(usable*0.45,size.y*0.55),Vector2(usable*0.70,size.y*0.49),Color("#bbce92"))
+	draw_texture_rect(GRASS,Rect2(Vector2.ZERO,size),true)
 	# Deterministic grass patches: no random state, simulation or per-frame effects.
-	for i: int in range(110):
+	for i: int in range(45):
 		var point := Vector2(fmod(i*73.7+11,size.x),fmod(i*127.3+37,size.y))
-		_ellipse(point,Vector2(6+i%4,2),Color("#a4cb73") if i%3 else Color("#c6e095"))
+		_ellipse(point,Vector2(6+i%4,2),Color("#abc184") if i%3 else Color("#c6d59d"))
 		if i%4 == 0:
-			draw_polyline(PackedVector2Array([point+Vector2(-3,-3),point,point+Vector2(2,-5)]),Color("#8fba66"),1,true)
+			draw_polyline(PackedVector2Array([point+Vector2(-3,-3),point,point+Vector2(2,-5)]),Color("#92ad72"),1,true)
 	var route := Curve2D.new()
 	route.add_point(Vector2(usable*0.46,-15),Vector2.ZERO,Vector2(-9,90))
 	route.add_point(Vector2(usable*0.28,grid_origin.y-8),Vector2(20,-35),Vector2(-70,65))
@@ -128,7 +131,16 @@ func _draw() -> void:
 	var shadow: PackedVector2Array = island.duplicate()
 	for i: int in range(shadow.size()):
 		shadow[i] += Vector2(0,10)
-	draw_colored_polygon(shadow,Color("#739c5b"))
+	draw_colored_polygon(shadow,Color("#73905b"))
+	for edge: Array in [[0,3,"#b6a379"],[3,2,"#c9ba90"]]:
+		var start: Vector2 = island[edge[0]]
+		var finish: Vector2 = island[edge[1]]
+		var depth := Vector2(0,10)
+		draw_colored_polygon(PackedVector2Array([start,finish,finish+depth,start+depth]),Color(edge[2]))
+		draw_line(start+Vector2(0,5),finish+Vector2(0,5),Color("#e0d3a9"),1,true)
+		for stone: int in range(1,10):
+			var joint: Vector2 = start.lerp(finish,stone/10.0)
+			draw_line(joint,joint+depth,Color("#958762"),1,true)
 	draw_colored_polygon(island,Color("#c7b47e"))
 	var rim: PackedVector2Array = island.duplicate()
 	rim.append(island[0])
@@ -153,6 +165,15 @@ func _draw() -> void:
 		var pond_position := Vector2(usable-pond_size.x-4,size.y-pond_size.y-27)
 		draw_texture_rect(POND,Rect2(pond_position,pond_size),false)
 		_bench(Vector2(usable*0.14,size.y-68),minf(1.0,usable/400))
+		# A little stone seating court and informal planted border.
+		for stone: int in range(7):
+			var position := Vector2(usable*0.24+stone*11,size.y-66-stone*2)
+			_ellipse(position+Vector2(0,2),Vector2(7,3),Color("#8b9e6c"))
+			_ellipse(position,Vector2(7,3),Color("#d7cfaa"))
+		for flower: int in range(13):
+			var position := Vector2(usable*0.12+flower*6,size.y-95+sin(flower*1.8)*5)
+			draw_line(position,position-Vector2(1,7),Color("#718f53"),2,true)
+			_blossom(position-Vector2(1,7),Color("#e6b3bb") if flower%3 else Color("#f5e4b5"),1.7)
 		_tree(Vector2(18,size.y-70),0.67)
 	for i: int in range(20):
 		var point := Vector2(12+fmod(i*73.0,maxf(1,usable-20)),size.y-10-fmod(i*17.0,28))

@@ -25,5 +25,6 @@ garden_runtime_check() {
 garden_runtime_check --script tests/test_runner.gd
 garden_runtime_check --script tests/test_requests.gd
 garden_runtime_check --script tests/test_redesign.gd
+garden_runtime_check --script tests/test_presentation.gd
 garden_runtime_check --quit-after 120
 printf 'Garden verification passed. Test data was isolated.\n'

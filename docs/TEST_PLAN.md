@@ -51,3 +51,12 @@ Use README commands. In this session actual rendered commands used DISPLAY=:99, 
 - All seven actual preview images regenerated and normal/narrow garden images visually inspected. SVG import and runtime logs checked for script errors. Source diff whitespace checks pass.
 - Art assets are shared textures; scenery stays static between resize/look/building changes. Three-blossom beds are used only at plot widths >=75 logical pixels. Reduced-motion behavior remains static.
 - No Android hardware, battery/thermal or full accessibility claim. Latest software-renderer timing sample remains explicitly desktop-only.
+
+
+## 0.7 verification
+- 679 automated checks: 140 core, 104 requests, 386 redesign/layout/save, 49 presentation. Existing suites plus the new final presentation suite pass with zero failures; tools/verify.sh includes all four and the runtime smoke.
+- tests/test_presentation.gd exercises empty/built/reserved/surplus stand states, counter species, badge clearing after delivery/claim, 99+ bounds, upgrade-state binding, read-only refreshes, schema-5 persistence, narrow caption fit and imported texture dimensions. Initial fixture failures were corrected by allowing layout frames, accounting for the existing sale goal on delivery, and requiring the real signage/stand dependency in the fixture. No production rule was loosened.
+- 176 rendered checks: 25 workflow (including two actual growth waits) and 151 redesign checks. Mixed planted beds cover all five generated crop heads at 320px and both side blossoms at 540px; each still awards one crop per bed.
+- Eight actual previews captured, including developed-garden installation/stock details. Normal, narrow large-text and developed scenes inspected visually. Fixture scenes do not represent player/user-research evidence.
+- Shared/mipmapped imports cap world textures at 256px and crop textures at 128px. Source PNGs retain original detail for future work. No continuous ambient animation was added; existing reduced-motion checks pass.
+- Latest desktop timing sample is UI_RENDER_METRICS.json; software-renderer timing is not Android acceptance.

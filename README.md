@@ -1,8 +1,8 @@
 # Garden Empire
 
-Version **0.6.0** · A playable, offline-first portrait gardening prototype built with **Godot 4.6.3 stable**. No external runtime dependencies, login, ads or purchases.
+Version **0.7.0** · A playable, offline-first portrait gardening prototype built with **Godot 4.6.3 stable**. No external runtime dependencies, login, ads or purchases.
 
-![Godot gameplay preview — seeded demo fixture](docs/screenshots/garden-demo.png)
+![Godot gameplay preview — seeded demo fixture](docs/screenshots/garden-estate.png)
 
 ## Play
 Open project.godot in Godot 4.6.3 and press **F5**, or run:
@@ -20,6 +20,15 @@ godot --path .
 
 ## Updating an existing game
 Download the latest main-branch ZIP or pull main, then open its project.godot in Godot and press F5. Keep the application name Garden Empire: the new build reads the same local save folder. Saves from schemas 1–4 migrate to schema 5 automatically, preserving coins, inventory, planted crops, upgrades, goals and settings. No reset is needed.
+
+## What's new in 0.7
+- Ten original painted-style miniature assets: cottage, market, well, trees, pond and all five crops. Separate transparent objects retain real interaction; see [asset provenance](assets/painted/README.md).
+- The world reflects your investments: compost, watering equipment, market baskets/sign, helper and field book appear with their existing upgrades.
+- The market counter shows actual unreserved crop types and distinguishes stock, reserved ingredients and an empty stand.
+- Inventory, ready-delivery and claimable-goal badges point to useful actions and clear as state changes.
+- Natural lawn detail, mortared terrace edges and a planted seating area refine the landscape.
+- Saves, rules and progression are unchanged. Imported world art is capped at 256px and crops at 128px with mipmaps.
+- [Design, verification and remaining work](docs/ART_DIRECTION_07.md).
 
 ## What's new in 0.6
 - Original storybook cottage, flower market, stone well, layered trees and lily pond; warm materials and consistent directional lighting.
@@ -52,7 +61,7 @@ From this repository:
 ```sh
 tools/verify.sh
 ```
-This imports scripts, runs **630 automated checks** (140 core + 104 requests + 386 redesign/migration/layout checks), then launches a headless runtime smoke test. It isolates test data in a temporary directory.
+This imports scripts, runs **679 automated checks** (140 core + 104 requests + 386 redesign/migration/layout + 49 presentation checks), then launches a headless runtime smoke test. It isolates test data in a temporary directory.
 
 Additional checks:
 ```sh
@@ -83,7 +92,7 @@ Developer coin control: `godot --path . -- --debug-garden` then Settings; only a
 
 ## Status and continuation
 Redesign audit, architecture, milestones and limitations: [UI_REDESIGN.md](docs/UI_REDESIGN.md).
-Desktop verification: 630 headless checks and 160 rendered pointer checks (25 original + 135 redesign, including both side blossoms on every full-size bed). Actual screenshots show fresh state or explicitly seeded demo fixtures.
+Desktop verification: 679 headless checks and 176 rendered pointer checks (25 workflow + 151 redesign, covering all five crop types at normal/narrow sizes). Actual screenshots show fresh state or explicitly seeded demo fixtures.
 
 The virtual software renderer produced variable frame times and large spikes; see UI_RENDER_METRICS.json and UI_REDESIGN.md. No stable Android FPS, battery, physical dp/safe-area, or screen-reader acceptance is claimed.
 

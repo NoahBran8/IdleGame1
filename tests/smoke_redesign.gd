@@ -146,7 +146,7 @@ func _run() -> void:
 	var started: int = game.feedback.animated_count
 	await click(game.board.plots[0])
 	check(game.feedback.animated_count == started,"reduced-motion planting uses no animation")
-	await _wide_bloom_hits(game)
+	await _all_crop_art_hits(game)
 	if "--skip-benchmark" in OS.get_cmdline_user_args():
 		check(game.feedback.active_count <= 6,"effects remain bounded")
 		game.queue_free()
@@ -188,7 +188,7 @@ func _run() -> void:
 	print(JSON.stringify(report))
 	quit(0 if failures == 0 else 1)
 
-func _wide_bloom_hits(game: Control) -> void:
+func _all_crop_art_hits(game: Control) -> void:
 	# Verify the added side blossoms through actual root-viewport pointer dispatch.
 	var previous: Dictionary = game.model.state.duplicate(true)
 	game.set_process(false)
@@ -201,10 +201,11 @@ func _wide_bloom_hits(game: Control) -> void:
 	game.model.state.settings.reduced_motion = true
 	root.size = Vector2i(540,960)
 	root.content_scale_size = root.size
+	var species: Array = game.model.config.plants.keys()
 	for side: int in [0,1]:
 		for index: int in range(16):
 			game.model.state.plots[index] = {}
-			game.model.plant(index,"sunflower",game.now()-game.model.growth_seconds("sunflower"))
+			game.model.plant(index,species[index%5],game.now()-game.model.growth_seconds(species[index%5]))
 		game._refresh()
 		for frame: int in range(6):
 			await process_frame
@@ -215,7 +216,23 @@ func _wide_bloom_hits(game: Control) -> void:
 			var rect: Rect2 = blossoms[side]
 			await click(tile,rect.position+rect.size*Vector2(0.5,0.25))
 			check(game.model.state.plots[index].is_empty(),"side blossom %d harvests exactly bed %d" % [side,index])
-	check(game.model.state.inventory.sunflower == 32,"bloom clusters award one crop per bed")
+	var count: int = 0
+	for quantity: Variant in game.model.state.inventory.values():
+		count += int(quantity)
+	check(count == 32,"mixed bloom clusters award one crop per bed")
+	root.size = Vector2i(320,640)
+	root.content_scale_size = root.size
+	for index: int in range(16):
+		game.model.state.plots[index] = {}
+		game.model.plant(index,species[index%5],game.now()-game.model.growth_seconds(species[index%5]))
+	game._refresh()
+	for frame: int in range(6):
+		await process_frame
+	for index: int in range(16):
+		var tile: Control = game.board.plots[index]
+		var rect: Rect2 = tile.art_rect()
+		await click(tile,rect.position+rect.size*Vector2(0.5,0.25))
+		check(game.model.state.plots[index].is_empty(),"narrow visible crop head harvests bed %d" % index)
 	game.model.state = previous
 	root.size = Vector2i(320,640)
 	root.content_scale_size = root.size

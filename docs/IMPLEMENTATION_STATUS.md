@@ -10,7 +10,7 @@ Godot 4.6.3 stable, original procedural isometric garden, 16 plots (4 initially 
 | M1 | Implemented, desktop verified | Real pointer planting → 8s growth → harvest → inventory sale → reload; atomic temp/rename saves and previous backup; tested corruption recovery. |
 | M2 | Implemented, desktop verified | Eight upgrades; XP; stand/helper; chronological capped offline processing; persisted cursor; 50 bulk-vs-incremental equivalence trials. |
 | M3 | Features implemented; mobile acceptance pending | Collection, five quests, tutorial hints, sound and accessibility settings, telemetry adapter. Real Godot renders inspected at 540px/320px. Hardware audio/haptics, touch, safe areas, contrast audit and usability still pending. |
-| M4 | Partial | 630 automated checks and 160 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
+| M4 | Partial | 679 automated checks and 176 rendered interaction checks pass. The 0.3 baseline has 10k synthetic runs; 0.4 adds 1k request-focused runs passing invariants. Android preset and build guide included. Actual export blocked by missing toolchain/templates; no APK, device FPS or battery evidence. |
 | M5 | Not started | No independent testers or retention results. No ads/IAP. |
 
 ## Material limitations
@@ -49,3 +49,8 @@ Original textured SVG cottage/market/well/trees/pond and refined botanical crops
 Autosave checkpoints now persist without rebuilding open panels, preserving button identity/focus during taps. Automated regression checks cover this; income/harvest changes still refresh panels. No economic/service rule or saved field changed, and schema remains 5.
 
 Verification: 630 headless checks and 160 rendered pointer checks pass; actual 540px/320px previews regenerated. See ART_DIRECTION_06.md for scope and limits. Android and independent user acceptance remain outstanding.
+
+## 0.7 detailed miniature milestone
+Replaced primary world/crop illustrations with ten original generated painted-style sprites and retained independent interactive objects. Added fine terrain/terrace detail and visible representations of the existing compost, irrigation, basket, signage, helper and learning upgrades. Real unreserved stock controls market-counter bouquets/status; inventory, fulfillable-request and earned-goal badges derive from the existing model. Shared recipe stock is disclosed in the request tooltip.
+
+49 presentation checks supplement the previous 630 automated checks. Rendered verification is 176 checks (25 workflow + 151 expanded mixed-crop/narrow interaction checks), all passing. Runtime texture dimensions are checked (256px world/128px crops). Schema remains 5; domain rules/services/data were not changed. Eight actual previews include a labelled established-garden fixture. Read ART_DIRECTION_07.md and assets/painted/README.md. Real-device/mobile, formal accessibility and independent tester acceptance remain open.

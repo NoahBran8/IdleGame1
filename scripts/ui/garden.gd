@@ -179,6 +179,7 @@ func _refresh() -> void:
 			unlock_hint.tooltip_text += " · %s unlocks at level %d" % [model.config.plants[id].name, int(model.config.plants[id].level_required)]
 			break
 	board.refresh(model, now(), selected)
+	_refresh_activity_badges()
 	var ready_count: int = 0
 	var growing: int = 0
 	for i: int in range(int(model.state.plots_unlocked)):
@@ -607,7 +608,7 @@ func _selector_card(id: String, title: String, caption: String, icon: String, ac
 	var card := SelectorCard.new()
 	card.title = title
 	card.caption = caption
-	card.picture = load("res://assets/ui/" + icon + ".svg")
+	card.picture = Board.Plot.PLANT_ART[icon] if Board.Plot.PLANT_ART.has(icon) else load("res://assets/ui/" + icon + ".svg")
 	card.toggle_mode = true
 	card.add_theme_font_size_override("font_size", 13)
 	card.pressed.connect(action)
@@ -648,3 +649,26 @@ func _update_notice() -> void:
 		status_banner.offset_top = -28 if notice.text.is_empty() else -50
 	elif not notice.text.is_empty() and Time.get_ticks_msec() > notice_deadline and saves.message.is_empty():
 		notice.text = ""
+
+func _refresh_activity_badges() -> void:
+	var inventory: int = 0
+	for amount: Variant in model.state.inventory.values():
+		inventory += int(amount)
+	var deliveries: int = 0
+	for offer: Dictionary in model.state.orders:
+		if model.can_fulfill(int(offer.uid)):
+			deliveries += 1
+	var goals: int = 0
+	for id: String in model.config.quests:
+		if not id in model.state.claimed_quests and model.quest_progress(id) >= int(model.config.quests[id].target):
+			goals += 1
+	for key: String in ["Inventory","Requests","Journal"]:
+		if not tab_buttons.has(key):
+			continue
+		var count: int = {"Inventory":inventory,"Requests":deliveries,"Journal":goals}[key]
+		var label: String = "" if count == 0 else "99+" if count > 99 else str(count)
+		var button: Button = tab_buttons[key]
+		if button.badge != label:
+			button.badge = label
+			button.queue_redraw()
+		button.tooltip_text = {"Inventory":"Inventory: %d harvested plants, including reserved stock", "Requests":"Requests: %d deliveries ready (shared ingredients may overlap)", "Journal":"Journal: %d rewards ready to claim"}[key] % count

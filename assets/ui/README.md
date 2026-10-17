@@ -4,3 +4,6 @@ All SVG paths in this folder were authored for Garden Empire with Codex assistan
 World buildings and scenery combine original shared SVGs in assets/world/ with native drawing in scripts/ui/. Plot sprites are original SVGs in this folder. The 0.6 botanical refinement adds material gradients, petal detail and leaf veins. Each functional world object is a visible Control with its own artwork, rather than an invisible region over a reference image.
 
 The runtime font is Godot's bundled font, covered by Godot's bundled notices. No claim of trademark clearance or legally secured exclusivity is made.
+
+
+0.7: crop rendering now uses the project-specific generated PNG objects in assets/painted/, shared by world, market stock and seed selector. These original SVG sources remain available; navigation and currency icons still use SVG. See assets/painted/README.md for generated-art provenance and import budgets.
